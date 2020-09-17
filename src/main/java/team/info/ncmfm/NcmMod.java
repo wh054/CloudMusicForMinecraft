@@ -24,6 +24,7 @@ public class NcmMod
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+        logger.info("system start");
     }
 
 
