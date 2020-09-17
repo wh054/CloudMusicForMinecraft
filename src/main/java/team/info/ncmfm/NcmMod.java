@@ -24,7 +24,6 @@ public class NcmMod
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-
     }
 
 
