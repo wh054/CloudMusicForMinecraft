@@ -2,6 +2,7 @@ package team.info.ncmfm.eventHandler;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
@@ -23,7 +24,8 @@ public class ItemRegistryHandler {
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public void onModelRegistry(ModelRegistryEvent event){
-        ModelLoader.setCustomModelResourceLocation(music_box, 0,
-                new ModelResourceLocation(music_box.getRegistryName(), "inventory"));
+        ResourceLocation resourceLocation=music_box.getRegistryName();
+        ModelResourceLocation modelResourceLocation=new ModelResourceLocation(resourceLocation, "inventory");
+        ModelLoader.setCustomModelResourceLocation(music_box, 0,modelResourceLocation);
     }
 }

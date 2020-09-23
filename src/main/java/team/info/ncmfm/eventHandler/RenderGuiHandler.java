@@ -13,6 +13,6 @@ public class RenderGuiHandler {
         if (event.getType() != RenderGameOverlayEvent.ElementType.EXPERIENCE) {
             return;
         }
-        new Pannel(Minecraft.getMinecraft());
+        //new Pannel(Minecraft.getMinecraft());
     }
 }
