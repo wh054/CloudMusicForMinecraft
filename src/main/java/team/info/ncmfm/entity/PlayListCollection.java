@@ -1,16 +1,17 @@
 package team.info.ncmfm.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class PlayListCollection implements Serializable {
 
-    private PlayList[] playlist;
+    private List<PlayList> playlist;
 
-    public PlayList[] getPlaylist() {
+    public List<PlayList> getPlaylist() {
         return playlist;
     }
 
-    public void setPlaylist(PlayList[] playlist) {
+    public void setPlaylist(List<PlayList> playlist) {
         this.playlist = playlist;
     }
 }

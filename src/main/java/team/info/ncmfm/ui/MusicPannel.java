@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.info.ncmfm.NcmMod;
@@ -33,6 +34,9 @@ public class MusicPannel extends GuiScreen {
     private GuiSlotPlayList slotPlayList;
     private GuiSlotTracks slotTracks;
 
+    private int selected = -1;
+    private PlayListContainer selectedPlayList;
+
     private IMusicManager musicManager;
 
     public MusicPannel(Minecraft mc,IMusicManager musicManager){
@@ -45,7 +49,7 @@ public class MusicPannel extends GuiScreen {
 
     @Override
     public void initGui() {
-        int slotHeight = 35;
+        int slotHeight = 25;
         playList.addAll(musicManager.LoadPlayList());
         for (PlayListContainer plc : playList)
         {
@@ -89,5 +93,18 @@ public class MusicPannel extends GuiScreen {
     public FontRenderer getFontRenderer()
     {
         return fontRenderer;
+    }
+
+    public void selectPlayListIndex(int index)
+    {
+        if (index == this.selected)
+            return;
+        this.selected = index;
+        this.selectedPlayList = (index >= 0 && index <= playList.size()) ? playList.get(selected) : null;
+    }
+
+    public boolean playListIndexSelected(int index)
+    {
+        return index == selected;
     }
 }

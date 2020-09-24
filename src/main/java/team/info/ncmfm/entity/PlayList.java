@@ -3,11 +3,11 @@ package team.info.ncmfm.entity;
 import java.io.Serializable;
 
 public class PlayList implements Serializable {
-    private int id;
+    private long id;
     private String name;
     private int trackCount;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

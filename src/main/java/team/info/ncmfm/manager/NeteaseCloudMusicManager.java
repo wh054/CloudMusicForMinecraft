@@ -1,19 +1,47 @@
 package team.info.ncmfm.manager;
 
+import com.google.gson.Gson;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import team.info.ncmfm.entity.PlayList;
+import team.info.ncmfm.entity.PlayListCollection;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.PlayListContainer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class NeteaseCloudMusicManager implements IMusicManager {
+    private final String HOST="http://182.254.171.36:3000";
+
     @Override
     public ArrayList<PlayListContainer> LoadPlayList() {
         ArrayList<PlayListContainer> as=new ArrayList<>();
-        for(int i=0;i<10;i++){
-            PlayListContainer temp=new PlayListContainer();
-            temp.setName("【杀马特】安仔心躁燥 LEVEL-"+i);
-            as.add(temp);
+        PlayListCollection playListCollection= GetPlayListByUid(53825510);
+        if(playListCollection!=null){
+            for(PlayList temp: playListCollection.getPlaylist()){
+                as.add(new PlayListContainer(temp.getName()));
+            }
         }
         return as;
+    }
+
+    private PlayListCollection GetPlayListByUid(int uid){
+        PlayListCollection rs=null;
+        CloseableHttpClient client = HttpClientBuilder.create().build();
+        HttpGet get = new HttpGet(HOST+"/user/playlist?uid="+uid);
+        try {
+            get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
+            HttpResponse response = client.execute(get);
+            String jsonResult = EntityUtils.toString(response.getEntity());
+            Gson gson = new Gson();
+            rs=gson.fromJson(jsonResult, PlayListCollection.class);
+        }catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return rs;
     }
 }
