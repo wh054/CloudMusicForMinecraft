@@ -14,13 +14,14 @@ import team.info.ncmfm.component.GuiSlotPlayList;
 import team.info.ncmfm.component.GuiSlotTracks;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.PlayListContainer;
+import team.info.ncmfm.model.TrackContainer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
 public class MusicPannel extends GuiScreen {
-    private ResourceLocation texture = new ResourceLocation(NcmMod.MODID, "textures/gui/screen.png");
+    private ResourceLocation texture = new ResourceLocation(NcmMod.MODID, "textures/gui/screen2.jpg");
     public final int width;
     public final int height;
 
@@ -30,6 +31,7 @@ public class MusicPannel extends GuiScreen {
     private static final int BUTTON_GET_MUSICLIST = 0;
 
     private ArrayList<PlayListContainer> playList;
+    private ArrayList<TrackContainer> trackList;
 
     private GuiSlotPlayList slotPlayList;
     private GuiSlotTracks slotTracks;
@@ -41,6 +43,7 @@ public class MusicPannel extends GuiScreen {
 
     public MusicPannel(Minecraft mc,IMusicManager musicManager){
         playList=new ArrayList<>();
+        trackList=new ArrayList<>();
         ScaledResolution scaled = new ScaledResolution(mc);
         width = scaled.getScaledWidth();
         height = scaled.getScaledHeight();
@@ -106,5 +109,13 @@ public class MusicPannel extends GuiScreen {
     public boolean playListIndexSelected(int index)
     {
         return index == selected;
+    }
+
+    public void LoadTrackList(){
+        trackList.clear();
+        PlayListContainer plc= playList.get(this.selected);
+        if(plc!=null){
+            trackList.addAll(musicManager.LoadTrackList(plc.getId()));
+        }
     }
 }

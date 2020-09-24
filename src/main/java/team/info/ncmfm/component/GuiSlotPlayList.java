@@ -32,7 +32,7 @@ public class GuiSlotPlayList extends GuiScrollingList {
     protected void elementClicked(int index, boolean doubleClick) {
         this.parent.selectPlayListIndex(index);
         if(doubleClick){
-            System.out.println("yes");
+            this.parent.LoadTrackList();
         }
     }
 
