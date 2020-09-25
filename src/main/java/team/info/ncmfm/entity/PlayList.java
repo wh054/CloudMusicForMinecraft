@@ -44,6 +44,24 @@ public class PlayList implements Serializable {
     public class Tracks implements Serializable{
         private long id;
         private String name;
+        private List<Author> ar;
+        private Album al;
+
+        public List<Author> getAr() {
+            return ar;
+        }
+
+        public void setAr(List<Author> ar) {
+            this.ar = ar;
+        }
+
+        public Album getAl() {
+            return al;
+        }
+
+        public void setAl(Album al) {
+            this.al = al;
+        }
 
         public long getId() {
             return id;
@@ -61,5 +79,47 @@ public class PlayList implements Serializable {
             this.name = name;
         }
 
+
+        public class Author implements Serializable{
+            private String name;
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+        }
+
+        public class Album implements Serializable{
+            private long id;
+            private String name;
+            private String picUrl;
+
+            public long getId() {
+                return id;
+            }
+
+            public void setId(long id) {
+                this.id = id;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getPicUrl() {
+                return picUrl;
+            }
+
+            public void setPicUrl(String picUrl) {
+                this.picUrl = picUrl;
+            }
+        }
     }
 }

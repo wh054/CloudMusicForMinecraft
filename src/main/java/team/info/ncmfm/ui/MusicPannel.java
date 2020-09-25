@@ -142,6 +142,7 @@ public class MusicPannel extends GuiScreen {
     }
 
     public void PlayMusic(){
-        System.out.println("当前播放歌曲:"+"[ID]"+this.selectedTrack.getId()+"|"+this.selectedTrack.getName());
+        String msg="点播歌曲==>"+this.selectedTrack.getName();
+        super.sendChatMessage(msg,true);
     }
 }

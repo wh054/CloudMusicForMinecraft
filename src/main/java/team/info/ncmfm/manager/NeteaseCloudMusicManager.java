@@ -37,7 +37,12 @@ public class NeteaseCloudMusicManager implements IMusicManager {
         TrackCollection trackCollection=GetTracksById(id);
         if(trackCollection!=null){
             for(PlayList.Tracks temp: trackCollection.getPlaylist().getTracks()){
-                as.add(new TrackContainer(temp.getId(),temp.getName()));
+                as.add(new TrackContainer(
+                        temp.getId(),
+                        temp.getName(),
+                        temp.getAr().get(0).getName(),
+                        temp.getAl().getName()
+                ));
             }
         }
         return as;
