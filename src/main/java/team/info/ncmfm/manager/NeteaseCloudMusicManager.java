@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import team.info.ncmfm.entity.MusicPacket;
 import team.info.ncmfm.entity.PlayList;
 import team.info.ncmfm.entity.PlayListCollection;
 import team.info.ncmfm.entity.TrackCollection;
@@ -46,7 +47,26 @@ public class NeteaseCloudMusicManager implements IMusicManager {
             }
         }
         return as;
+    }
 
+    @Override
+    public String GetMusicById(long id) {
+        String musicUrl="";
+        CloseableHttpClient client = HttpClientBuilder.create().build();
+        HttpGet get = new HttpGet(HOST+"/song/url?id="+id+"&br=128000");
+        try {
+            get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
+            HttpResponse response = client.execute(get);
+            String jsonResult = EntityUtils.toString(response.getEntity());
+            Gson gson = new Gson();
+            MusicPacket packet=gson.fromJson(jsonResult, MusicPacket.class);
+            if(packet.getCode()==200){
+                musicUrl=packet.getData().get(0).getUrl();
+            }
+        }catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return musicUrl;
     }
 
     private PlayListCollection GetPlayListByUid(int uid){

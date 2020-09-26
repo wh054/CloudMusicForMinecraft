@@ -15,6 +15,8 @@ import team.info.ncmfm.component.GuiSlotTracks;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.PlayListContainer;
 import team.info.ncmfm.model.TrackContainer;
+import team.info.ncmfm.net.MusicMessage;
+import team.info.ncmfm.net.MusicPacketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -143,6 +145,8 @@ public class MusicPannel extends GuiScreen {
 
     public void PlayMusic(){
         String msg="µã²¥¸èÇú==>"+this.selectedTrack.getName();
+        String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
         super.sendChatMessage(msg,true);
+        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(musicUrl));
     }
 }

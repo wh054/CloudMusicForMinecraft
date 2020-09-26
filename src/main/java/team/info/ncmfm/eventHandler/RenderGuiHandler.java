@@ -1,10 +1,7 @@
 package team.info.ncmfm.eventHandler;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import team.info.ncmfm.ui.Pannel;
-
 public class RenderGuiHandler {
 
     @SubscribeEvent

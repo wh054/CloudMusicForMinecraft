@@ -9,4 +9,6 @@ public interface IMusicManager {
     ArrayList<PlayListContainer> LoadPlayList();
 
     ArrayList<TrackContainer> LoadTrackList(long id);
+
+    String GetMusicById(long id);
 }
