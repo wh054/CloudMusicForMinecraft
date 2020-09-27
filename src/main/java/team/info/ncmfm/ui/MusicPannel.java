@@ -77,8 +77,12 @@ public class MusicPannel extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         mc.renderEngine.bindTexture(texture);
         drawScaledCustomSizeModalRect(0, 0, 0, 0, 1828, (int)(1828*(height/(float)width)), width, height, 1828, 1292);
-        this.slotPlayList.drawScreen(mouseX, mouseY, partialTicks);
-        this.slotTracks.drawScreen(mouseX, mouseY, partialTicks);
+        if(this.slotPlayList!=null){
+            this.slotPlayList.drawScreen(mouseX, mouseY, partialTicks);
+        }
+        if(this.slotTracks!=null){
+            this.slotTracks.drawScreen(mouseX, mouseY, partialTicks);
+        }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

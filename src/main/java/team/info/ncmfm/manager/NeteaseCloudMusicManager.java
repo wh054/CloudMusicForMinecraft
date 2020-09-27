@@ -15,6 +15,7 @@ import team.info.ncmfm.model.PlayListContainer;
 import team.info.ncmfm.model.TrackContainer;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class NeteaseCloudMusicManager implements IMusicManager {
@@ -51,50 +52,35 @@ public class NeteaseCloudMusicManager implements IMusicManager {
 
     @Override
     public String GetMusicById(long id) {
+        String url=HOST+"/song/url?id="+id+"&br=128000";
         String musicUrl="";
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet get = new HttpGet(HOST+"/song/url?id="+id+"&br=128000");
-        try {
-            get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
-            HttpResponse response = client.execute(get);
-            String jsonResult = EntityUtils.toString(response.getEntity());
-            Gson gson = new Gson();
-            MusicPacket packet=gson.fromJson(jsonResult, MusicPacket.class);
-            if(packet.getCode()==200){
-                musicUrl=packet.getData().get(0).getUrl();
-            }
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
+        MusicPacket packet=doGet(MusicPacket.class,url);
+        if(packet.getCode()==200){
+            musicUrl=packet.getData().get(0).getUrl();
         }
         return musicUrl;
     }
 
     private PlayListCollection GetPlayListByUid(int uid){
-        PlayListCollection rs=null;
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet get = new HttpGet(HOST+"/user/playlist?uid="+uid);
-        try {
-            get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
-            HttpResponse response = client.execute(get);
-            String jsonResult = EntityUtils.toString(response.getEntity());
-            Gson gson = new Gson();
-            rs=gson.fromJson(jsonResult, PlayListCollection.class);
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return rs;
+        String url=HOST+"/user/playlist?uid="+uid;
+        return doGet(PlayListCollection.class,url);
     }
 
     private TrackCollection GetTracksById(long id){
-        TrackCollection rs=null;
+        String url=HOST+"/playlist/detail?id="+id;
+        return doGet(TrackCollection.class,url);
+    }
+
+    private <T> T doGet(Class <T> t,String url){
+        T rs=null;
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet get = new HttpGet(HOST+"/playlist/detail?id="+id);
+        HttpGet get = new HttpGet(url);
         try {
             get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
             HttpResponse response = client.execute(get);
             String jsonResult = EntityUtils.toString(response.getEntity());
             Gson gson = new Gson();
-            rs=gson.fromJson(jsonResult, TrackCollection.class);
+            rs=gson.fromJson(jsonResult,(Type)t);
         }catch (IOException e) {
             System.out.println(e.getMessage());
         }

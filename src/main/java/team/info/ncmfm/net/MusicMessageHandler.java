@@ -13,9 +13,13 @@ public class MusicMessageHandler implements IMessageHandler<MusicMessage, IMessa
 
     @Override
     public IMessage onMessage(MusicMessage message, MessageContext ctx) {
-        String musicUrl = message.send;
-        System.out.println(musicUrl);;
-        NcmMod.AudioBufferChannel.sendToAll(createFMLProxyPacket("[Net]"+musicUrl));
+        if(ctx.side.isServer()){
+            String musicUrl = message.send;
+            System.out.println(musicUrl);
+            if(NcmMod.AudioBufferChannel!=null){
+                NcmMod.AudioBufferChannel.sendToAll(createFMLProxyPacket("[Net]"+musicUrl));
+            }
+        }
         return null;
     }
 
