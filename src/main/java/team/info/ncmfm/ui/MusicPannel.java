@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.info.ncmfm.NcmMod;
@@ -30,7 +29,8 @@ public class MusicPannel extends GuiScreen {
     private int playListWidth;
     private int tracksWidth=200;
 
-    private static final int BUTTON_GET_MUSICLIST = 0;
+    private static final int BUTTON_STOP_MUSIC = 0;
+    private static final int BUTTON_REFLASH_STATE =1;
 
     private ArrayList<PlayListContainer> playList;
     private ArrayList<TrackContainer> trackList;
@@ -57,6 +57,7 @@ public class MusicPannel extends GuiScreen {
     @Override
     public void initGui() {
         int slotHeight = 15;
+        musicManager.login();
         playList.addAll(musicManager.LoadPlayList());
         for (PlayListContainer plc : playList)
         {
@@ -68,7 +69,8 @@ public class MusicPannel extends GuiScreen {
             tracksWidth = Math.max(tracksWidth,getFontRenderer().getStringWidth(tc.getName()) + 10);
         }
 
-        this.buttonList.add(new GuiButton(BUTTON_GET_MUSICLIST,(int)(width*0.75), (int)(height*0.85), 80, 20,"更新歌单"));
+        this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 80, 20,"停止播放"));
+        this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 80, 20,"更新"));
         this.slotPlayList = new GuiSlotPlayList(this, playList, playListWidth, slotHeight);
         this.slotTracks=new GuiSlotTracks(this,trackList,tracksWidth,slotHeight);
     }
@@ -94,9 +96,8 @@ public class MusicPannel extends GuiScreen {
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         switch(button.id){
-            case BUTTON_GET_MUSICLIST:
-                playList.clear();
-                playList.addAll(musicManager.LoadPlayList());
+            case BUTTON_REFLASH_STATE:
+                musicManager.updateLoginState();
                 break;
             default:
                 super.actionPerformed(button);

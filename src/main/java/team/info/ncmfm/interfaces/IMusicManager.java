@@ -11,4 +11,8 @@ public interface IMusicManager {
     ArrayList<TrackContainer> LoadTrackList(long id);
 
     String GetMusicById(long id);
+
+    void updateLoginState();
+
+    void login();
 }

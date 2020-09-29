@@ -17,6 +17,7 @@ public class MusicMessageHandler implements IMessageHandler<MusicMessage, IMessa
             String musicUrl = message.send;
             System.out.println(musicUrl);
             if(NcmMod.AudioBufferChannel!=null){
+                NcmMod.AudioBufferChannel.sendToAll(createFMLProxyPacket("[Stop]"));
                 NcmMod.AudioBufferChannel.sendToAll(createFMLProxyPacket("[Net]"+musicUrl));
             }
         }
