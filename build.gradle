@@ -63,6 +63,8 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
     compile group:'commons-io', name:'commons-io', version:'2.6'
     compile group:'org.apache.httpcomponents', name:'httpclient', version:'4.5.2'
+
+    compile fileTree(dir: 'libs', includes: ['*.jar'])
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"

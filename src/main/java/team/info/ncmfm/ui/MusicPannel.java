@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.info.ncmfm.NcmMod;
+import team.info.ncmfm.audio.Mp3Player;
 import team.info.ncmfm.component.GuiSlotPlayList;
 import team.info.ncmfm.component.GuiSlotTracks;
 import team.info.ncmfm.interfaces.IMusicManager;
@@ -18,6 +19,9 @@ import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicPacketHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
@@ -99,6 +103,9 @@ public class MusicPannel extends GuiScreen {
             case BUTTON_REFLASH_STATE:
                 musicManager.updateLoginState();
                 break;
+            case BUTTON_STOP_MUSIC:
+                StopMusic();
+                break;
             default:
                 super.actionPerformed(button);
         }
@@ -152,6 +159,11 @@ public class MusicPannel extends GuiScreen {
         String msg="µã²¥¸èÇú==>"+this.selectedTrack.getName();
         String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
         super.sendChatMessage(msg,true);
-        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(musicUrl));
+        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage("[Net]"+musicUrl));
+
+    }
+
+    public void StopMusic(){
+        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage("[STOP]"));
     }
 }

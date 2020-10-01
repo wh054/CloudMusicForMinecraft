@@ -5,11 +5,11 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 import team.info.ncmfm.interfaces.IProxy;
 import team.info.ncmfm.net.MusicMessage;
+import team.info.ncmfm.net.MusicMessageClientHandler;
 import team.info.ncmfm.net.MusicMessageHandler;
 import team.info.ncmfm.net.MusicPacketHandler;
 
@@ -28,8 +28,6 @@ public class NcmMod
             clientSide = "team.info.ncmfm.proxy.ClientProxy")
     public static IProxy proxy;
 
-    public static FMLEventChannel AudioBufferChannel;
-
     private static Logger logger;
 
     @Mod.EventHandler
@@ -37,6 +35,7 @@ public class NcmMod
     {
         logger = event.getModLog();
         MusicPacketHandler.INSTANCE.registerMessage(MusicMessageHandler.class, MusicMessage.class, 223, Side.SERVER);
+        MusicPacketHandler.INSTANCE.registerMessage(MusicMessageClientHandler.class, MusicMessage.class, 224, Side.CLIENT);
         proxy.preInit(event);
     }
 
