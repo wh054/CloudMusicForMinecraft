@@ -95,12 +95,9 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
+            "Specification-Title": "ncmmod",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
@@ -128,12 +125,13 @@ publishing {
 
 shadowJar {
     classifier = ""
+    relocate 'javazoom.jl', 'shadow.javazoom.jl'
     dependencies {
-        include(dependency("org.apache.httpcomponents:httpclient"))
+        include(dependency(fileTree(dir:'libs',include:'*.jar')))
     }
 }
 
-reobf {
+reobf{
     shadowJar {} // Reobfuscate the shadowed JAR
 }
 
