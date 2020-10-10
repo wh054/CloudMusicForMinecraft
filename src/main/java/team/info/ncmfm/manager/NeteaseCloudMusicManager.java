@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NeteaseCloudMusicManager implements IMusicManager {
-    private static final String HOST="http://182.254.171.36:3000";
+    private static final String HOST=NcmConfig.host;
     private static HashMap<String, Object> cache=new HashMap<String,Object>();
 
     public void login(){

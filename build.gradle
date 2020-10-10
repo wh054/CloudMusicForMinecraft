@@ -1,3 +1,4 @@
+
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -8,6 +9,12 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
+    id 'java'
+}
+
         
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -63,8 +70,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
     compile group:'commons-io', name:'commons-io', version:'2.6'
     compile group:'org.apache.httpcomponents', name:'httpclient', version:'4.5.2'
-
-    compile fileTree(dir: 'libs', includes: ['*.jar'])
+    compile fileTree(dir:'libs',include:'*.jar')
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
@@ -117,6 +123,18 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+
+shadowJar {
+    classifier = ""
+    dependencies {
+        include(dependency("org.apache.httpcomponents:httpclient"))
+    }
+}
+
+reobf {
+    shadowJar {} // Reobfuscate the shadowed JAR
 }
 
 sourceSets { main { output.resourcesDir = output.classesDir } }

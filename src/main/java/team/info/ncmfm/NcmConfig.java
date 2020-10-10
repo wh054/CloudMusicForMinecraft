@@ -10,4 +10,6 @@ public class NcmConfig {
     public static String phone="test";
     @Config.Comment("√‹¬Î")
     public static String password="test";
+    @Config.Comment("‘∆“Ù¿÷API Host")
+    public static String host="test";
 }

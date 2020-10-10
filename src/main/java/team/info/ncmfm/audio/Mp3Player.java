@@ -3,7 +3,6 @@ package team.info.ncmfm.audio;
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Header;
-import javazoom.jl.decoder.JavaLayerException;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -31,7 +30,7 @@ public class Mp3Player extends MediaPlayer implements Runnable{
     public void run() {
         try {
             super.play();
-        } catch (JavaLayerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

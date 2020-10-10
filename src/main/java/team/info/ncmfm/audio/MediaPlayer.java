@@ -1,7 +1,6 @@
 package team.info.ncmfm.audio;
 
 import javazoom.jl.decoder.Bitstream;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
 import java.io.BufferedInputStream;
@@ -14,11 +13,15 @@ public abstract class MediaPlayer {
         this.mediaStream=stream;
     }
 
-    public void play() throws JavaLayerException {
+    public void play() {
         BufferedInputStream buffer = new BufferedInputStream(this.mediaStream);
         Bitstream bt = new Bitstream(buffer);
-        Player player = new Player(buffer);
-        player.play();
+        try{
+            Player player = new Player(buffer);
+            player.play();
+        }catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
     };
 
 }

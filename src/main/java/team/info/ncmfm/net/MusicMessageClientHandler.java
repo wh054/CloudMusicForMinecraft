@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, IMessage> {
-    Thread thread;
+    public static Thread musicThread;
 
     @Override
     public IMessage onMessage(MusicMessage message, MessageContext ctx) {
@@ -21,23 +21,23 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
                     URLConnection con =url.openConnection();
                     InputStream inputStream= con.getInputStream();
                     Mp3Player mp3Player=new Mp3Player(inputStream,con.getContentLength());
-                    if(thread!=null){
-                        if(thread.isAlive()){
-                            thread.stop();
+                    if(musicThread!=null){
+                        if(musicThread.isAlive()){
+                            musicThread.stop();
                         }
-                        thread=null;
+                        musicThread=null;
                     }
-                    thread=new Thread(mp3Player);
-                    thread.start();
+                    musicThread=new Thread(mp3Player);
+                    musicThread.start();
                 }catch (Exception ex){
                     System.out.println(ex.getMessage());
                 }
             }else {
                 //stop music
-                if(thread!=null){
-                    if(thread.isAlive()){
-                        thread.stop();
-                        thread=null;
+                if(musicThread!=null){
+                    if(musicThread.isAlive()){
+                        musicThread.stop();
+                        musicThread=null;
                     }
                 }
             }
