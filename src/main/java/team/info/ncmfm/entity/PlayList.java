@@ -8,6 +8,7 @@ public class PlayList implements Serializable {
     private String name;
     private int trackCount;
     private List<Tracks> tracks;
+    private List<TrackId> trackids;
 
     public long getId() {
         return id;
@@ -39,6 +40,14 @@ public class PlayList implements Serializable {
 
     public void setTracks(List<Tracks> tracks) {
         this.tracks = tracks;
+    }
+
+    public List<TrackId> getTrackids() {
+        return trackids;
+    }
+
+    public void setTrackids(List<TrackId> trackids) {
+        this.trackids = trackids;
     }
 
     public class Tracks implements Serializable{
@@ -120,6 +129,45 @@ public class PlayList implements Serializable {
             public void setPicUrl(String picUrl) {
                 this.picUrl = picUrl;
             }
+        }
+    }
+
+    public class TrackId implements Serializable{
+        private int id;
+        private int v;
+        private long at;
+        private Object alg;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getV() {
+            return v;
+        }
+
+        public void setV(int v) {
+            this.v = v;
+        }
+
+        public long getAt() {
+            return at;
+        }
+
+        public void setAt(long at) {
+            this.at = at;
+        }
+
+        public Object getAlg() {
+            return alg;
+        }
+
+        public void setAlg(Object alg) {
+            this.alg = alg;
         }
     }
 }

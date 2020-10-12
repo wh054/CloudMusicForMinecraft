@@ -17,10 +17,8 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
         if(ctx.side.isClient()){
             if(message.send.startsWith("[Net]")){
                 try{
-                    URL url = new URL(message.send.replace("[Net]",""));
-                    URLConnection con =url.openConnection();
-                    InputStream inputStream= con.getInputStream();
-                    Mp3Player mp3Player=new Mp3Player(inputStream,con.getContentLength());
+                    String music_url=message.send.replace("[Net]","");
+                    Mp3Player mp3Player=new Mp3Player(music_url);
                     if(musicThread!=null){
                         if(musicThread.isAlive()){
                             musicThread.stop();
