@@ -8,10 +8,6 @@ public class Mp3Player extends MediaPlayer implements Runnable{
 
     @Override
     public void run() {
-        try {
-            super.play();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        super.play();
     }
 }

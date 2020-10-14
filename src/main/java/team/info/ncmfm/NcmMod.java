@@ -30,6 +30,8 @@ public class NcmMod
 
     private static Logger logger;
 
+    public static Thread musicThread;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {

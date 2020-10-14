@@ -23,6 +23,8 @@ public class NeteaseCloudMusicManager implements IMusicManager {
     private static final String HOST=NcmConfig.host;
     private static HashMap<String, Object> cache=new HashMap<String,Object>();
 
+    private String bitRate=NcmConfig.bitRate;
+
     public void login(){
         String phone=NcmConfig.phone;
         String password= NcmConfig.password;
@@ -105,7 +107,7 @@ public class NeteaseCloudMusicManager implements IMusicManager {
 
     @Override
     public String GetMusicById(long id) {
-        String url=HOST+"/song/url?id="+id+"&br=128000";
+        String url=HOST+"/song/url?id="+id+"&br="+ bitRate;
         String musicUrl="";
         MusicPacket packet=doGet(MusicPacket.class,url);
         if(packet.getCode()==200){

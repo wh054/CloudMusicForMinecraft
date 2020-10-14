@@ -6,8 +6,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.manager.NeteaseCloudMusicManager;
-import team.info.ncmfm.net.MusicMessageClientHandler;
 import team.info.ncmfm.ui.MusicPannel;
 
 public class PlayerActionHandler {
@@ -25,10 +25,10 @@ public class PlayerActionHandler {
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
-        if(MusicMessageClientHandler.musicThread!=null){
-            if (MusicMessageClientHandler.musicThread.isAlive()){
-                MusicMessageClientHandler.musicThread.stop();
-                MusicMessageClientHandler.musicThread=null;
+        if(NcmMod.musicThread!=null){
+            if (NcmMod.musicThread.isAlive()){
+                NcmMod.musicThread.stop();
+                NcmMod.musicThread=null;
             }
         }
     }

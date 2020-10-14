@@ -12,4 +12,6 @@ public class NcmConfig {
     public static String password="test";
     @Config.Comment("ÔÆÒôÀÖAPI Host")
     public static String host="test";
+    @Config.Comment("ÂëÂÊ")
+    public static String bitRate="128000";
 }
