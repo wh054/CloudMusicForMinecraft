@@ -4,7 +4,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import team.info.ncmfm.NcmMod;
-import team.info.ncmfm.audio.Mp3Player;
+import team.info.ncmfm.audio.PlayerThreadWrapper;
 
 public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, IMessage> {
     @Override
@@ -12,26 +12,19 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
         if(ctx.side.isClient()){
             if(message.send.startsWith("[Net]")){
                 try{
-                    String music_url=message.send.replace("[Net]","");
-                    Mp3Player mp3Player=new Mp3Player(music_url);
-                    if(NcmMod.musicThread!=null){
-                        if(NcmMod.musicThread.isAlive()){
-                            NcmMod.musicThread.stop();
-                        }
-                        NcmMod.musicThread=null;
+                    if(NcmMod.mp3Player!=null){
+                        NcmMod.mp3Player.close();
                     }
-                    NcmMod.musicThread=new Thread(mp3Player);
-                    NcmMod.musicThread.start();
+                    String music_url=message.send.replace("[Net]","");
+                    PlayerThreadWrapper threadWrapper=new PlayerThreadWrapper(music_url);
+                    Thread thread=new Thread(threadWrapper);
+                    thread.start();
                 }catch (Exception ex){
                     System.out.println(ex.getMessage());
                 }
             }else {
-                //stop music
-                if(NcmMod.musicThread!=null){
-                    if(NcmMod.musicThread.isAlive()){
-                        NcmMod.musicThread.stop();
-                        NcmMod.musicThread=null;
-                    }
+                if(NcmMod.mp3Player!=null){
+                    NcmMod.mp3Player.close();
                 }
             }
         }

@@ -25,11 +25,8 @@ public class PlayerActionHandler {
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
-        if(NcmMod.musicThread!=null){
-            if (NcmMod.musicThread.isAlive()){
-                NcmMod.musicThread.stop();
-                NcmMod.musicThread=null;
-            }
+        if(NcmMod.mp3Player!=null){
+            NcmMod.mp3Player.close();
         }
     }
 }

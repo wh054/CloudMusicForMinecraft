@@ -1,5 +1,6 @@
 package team.info.ncmfm;
 
+import javazoom.jl.player.Player;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -7,6 +8,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
+import team.info.ncmfm.audio.Mp3Player;
 import team.info.ncmfm.interfaces.IProxy;
 import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicMessageClientHandler;
@@ -30,7 +32,7 @@ public class NcmMod
 
     private static Logger logger;
 
-    public static Thread musicThread;
+    public static Player mp3Player;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
