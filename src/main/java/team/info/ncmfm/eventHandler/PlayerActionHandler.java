@@ -25,8 +25,6 @@ public class PlayerActionHandler {
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
-        if(NcmMod.mp3Player!=null){
-            NcmMod.mp3Player.close();
-        }
+        NcmMod.soundSystem.stop("custom.mp3");
     }
 }

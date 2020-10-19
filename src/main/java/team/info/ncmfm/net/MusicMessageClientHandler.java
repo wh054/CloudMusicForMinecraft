@@ -1,31 +1,21 @@
 package team.info.ncmfm.net;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import team.info.ncmfm.NcmMod;
-import team.info.ncmfm.audio.PlayerThreadWrapper;
 
 public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, IMessage> {
     @Override
     public IMessage onMessage(MusicMessage message, MessageContext ctx) {
-        if(ctx.side.isClient()){
-            if(message.send.startsWith("[Net]")){
-                try{
-                    if(NcmMod.mp3Player!=null){
-                        NcmMod.mp3Player.close();
-                    }
-                    String music_url=message.send.replace("[Net]","");
-                    PlayerThreadWrapper threadWrapper=new PlayerThreadWrapper(music_url);
-                    Thread thread=new Thread(threadWrapper);
-                    thread.start();
-                }catch (Exception ex){
-                    System.out.println(ex.getMessage());
-                }
+        if (ctx.side.isClient()) {
+            if (message.send.startsWith("[Net]")) {
+                String music_url = message.send.replace("[Net]", "");
+                Minecraft.getMinecraft().getSoundHandler().stopSounds();
+                NcmMod.soundSystem.backgroundMusic("custom.mp3", music_url, true);
             }else {
-                if(NcmMod.mp3Player!=null){
-                    NcmMod.mp3Player.close();
-                }
+                NcmMod.soundSystem.stop("custom.mp3");
             }
         }
         return null;

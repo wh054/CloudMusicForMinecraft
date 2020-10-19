@@ -1,6 +1,6 @@
 package team.info.ncmfm;
 
-import javazoom.jl.player.Player;
+import net.minecraft.client.audio.SoundManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -8,7 +8,10 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
-import team.info.ncmfm.audio.Mp3Player;
+import paulscode.sound.SoundSystem;
+import paulscode.sound.SoundSystemConfig;
+import paulscode.sound.SoundSystemException;
+import team.info.ncmfm.audio.CodecMP3;
 import team.info.ncmfm.interfaces.IProxy;
 import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicMessageClientHandler;
@@ -32,11 +35,10 @@ public class NcmMod
 
     private static Logger logger;
 
-    public static Player mp3Player;
+    public static SoundSystem soundSystem;
 
     @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
+    public void preInit(FMLPreInitializationEvent event){
         logger = event.getModLog();
         MusicPacketHandler.INSTANCE.registerMessage(MusicMessageHandler.class, MusicMessage.class, 223, Side.SERVER);
         MusicPacketHandler.INSTANCE.registerMessage(MusicMessageClientHandler.class, MusicMessage.class, 224, Side.CLIENT);
