@@ -15,10 +15,7 @@ import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.audio.CodecMP3;
-import team.info.ncmfm.eventHandler.GameSoundHandler;
-import team.info.ncmfm.eventHandler.ItemRegistryHandler;
-import team.info.ncmfm.eventHandler.PlayerActionHandler;
-import team.info.ncmfm.eventHandler.RenderGuiHandler;
+import team.info.ncmfm.eventHandler.*;
 import team.info.ncmfm.interfaces.IProxy;
 
 import java.lang.reflect.Field;
@@ -29,6 +26,7 @@ public class ClientProxy implements IProxy {
     @Override
     public void preInit(FMLPreInitializationEvent event)
     {
+        MinecraftForge.EVENT_BUS.register(new BlockRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new ItemRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new RenderGuiHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerActionHandler());
