@@ -1,19 +1,24 @@
 package team.info.ncmfm.ui;
 
+import com.google.gson.Gson;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.component.GuiSlotPlayList;
 import team.info.ncmfm.component.GuiSlotTracks;
 import team.info.ncmfm.interfaces.IMusicManager;
+import team.info.ncmfm.model.MusicInfoWrapper;
 import team.info.ncmfm.model.PlayListContainer;
 import team.info.ncmfm.model.TrackContainer;
+import team.info.ncmfm.net.EnumMusicCommand;
 import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicPacketHandler;
 
@@ -44,6 +49,7 @@ public class MusicPannel extends GuiScreen {
     private TrackContainer selectedTrack;
 
     private IMusicManager musicManager;
+    private BlockPos blockPos;
 
     public MusicPannel(Minecraft mc,IMusicManager musicManager){
         playList=new ArrayList<>();
@@ -52,6 +58,16 @@ public class MusicPannel extends GuiScreen {
         width = scaled.getScaledWidth();
         height = scaled.getScaledHeight();
         this.musicManager=musicManager;
+    }
+
+    public MusicPannel(Minecraft mc, IMusicManager musicManager, BlockPos pos){
+        playList=new ArrayList<>();
+        trackList=new ArrayList<>();
+        ScaledResolution scaled = new ScaledResolution(mc);
+        width = scaled.getScaledWidth();
+        height = scaled.getScaledHeight();
+        this.musicManager=musicManager;
+        this.blockPos=pos;
     }
 
     @Override
@@ -152,14 +168,22 @@ public class MusicPannel extends GuiScreen {
     }
 
     public void PlayMusic(){
-        String msg="µã²¥¸èÇú==>"+this.selectedTrack.getName();
+        MusicInfoWrapper packet=new MusicInfoWrapper();
+        packet.setCommand(EnumMusicCommand.PLAY);
         String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
-        super.sendChatMessage(msg,true);
-        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage("[Net]"+musicUrl));
-
+        packet.setSource(musicUrl);
+        if(blockPos!=null){
+            packet.setPos(this.blockPos);
+        }else {
+            String msg="µã²¥¸èÇú==>"+this.selectedTrack.getName();
+            super.sendChatMessage(msg,true);
+        }
+        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
     }
 
     public void StopMusic(){
-        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage("[STOP]"));
+        MusicInfoWrapper packet=new MusicInfoWrapper();
+        packet.setCommand(EnumMusicCommand.STOP);
+        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
     }
 }

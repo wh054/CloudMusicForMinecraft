@@ -38,7 +38,7 @@ public class CodecMP3 implements ICodec {
             initialized = true;
 
             updateBuffer(); // get single frame here, to receive stream params
-            audioFormat = new AudioFormat(decoder.getOutputFrequency(), 16, decoder.getOutputChannels(), true, false);
+            audioFormat = new AudioFormat(decoder.getOutputFrequency(), 16, 1, true, false);
             return true;
         } catch (Throwable t) {
             Log.warn("Failed to initalize codec for url '%s'");
@@ -111,7 +111,26 @@ public class CodecMP3 implements ICodec {
     }
 
     private void readBytes(OutputStream output) throws IOException {
-        output.write(buffer.getBuffer());
+        byte[] buff=covertMono(buffer.getBuffer());
+        output.write(buff);
+    }
+
+    private byte[] covertMono(byte[] buff){
+        byte[] mono=null;
+        if(buff!= null ) {
+            /** Convert to mono */
+             mono = new byte[buff.length / 2];
+            for (int i = 0; i < mono.length / 2; ++i) {
+                int HI = 1;
+                int LO = 0;
+                int left = (buff[i * 4 + HI] << 8) | (buff[i * 4 + LO] & 0xff);
+                int right = (buff[i * 4 + 2 + HI] << 8) | (buff[i * 4 + 2 + LO] & 0xff);
+                int avg = (left + right) / 2;
+                mono[i * 2 + HI] = (byte) ((avg >> 8) & 0xff);
+                mono[i * 2 + LO] = (byte) (avg & 0xff);
+            }
+        }
+        return mono;
     }
 
     @Override
