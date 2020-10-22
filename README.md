@@ -1,1 +1,1 @@
-# NeteaseCloudMusicForMinecraft
+# CloudMusicForMinecraft
