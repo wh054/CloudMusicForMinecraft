@@ -184,6 +184,9 @@ public class MusicPannel extends GuiScreen {
     public void StopMusic(){
         MusicInfoWrapper packet=new MusicInfoWrapper();
         packet.setCommand(EnumMusicCommand.STOP);
+        if(this.blockPos!=null){
+            packet.setPos(this.blockPos);
+        }
         MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
     }
 }

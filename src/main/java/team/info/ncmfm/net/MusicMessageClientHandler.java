@@ -5,14 +5,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import paulscode.sound.SoundSystemConfig;
 import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.model.MusicInfoWrapper;
-
-import java.net.MalformedURLException;
+import team.info.ncmfm.utils.EncryptUtil;
 import java.net.URL;
 
 public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, IMessage> {
+    private static final Logger logger = LogManager.getLogger(MusicMessageClientHandler.class);
+
     @Override
     public IMessage onMessage(MusicMessage message, MessageContext ctx) {
         if (ctx.side.isClient()) {
@@ -20,30 +23,35 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
 
             if(packet.getCommand().equals(EnumMusicCommand.PLAY)){
                 if(packet.getPos()!=null){
+                    String id=EncryptUtil.MD5(packet.getPos().toString())+".mp3";
                     try {
                         NcmMod.soundSystem.newStreamingSource(
                                 false,
-                                "custom.mp3",
+                                id,
                                 new URL(packet.getSource()),
-                                "custom.mp3",
+                                id,
                                 true,
                                 packet.getPos().getX(),
                                 packet.getPos().getY(),
                                 packet.getPos().getZ(),
-                                SoundSystemConfig.ATTENUATION_LINEAR,
-                                SoundSystemConfig.getDefaultFadeDistance()
+                                SoundSystemConfig.ATTENUATION_ROLLOFF,
+                                0.5f
                         );
-                        NcmMod.soundSystem.play("custom.mp3");
-                        System.out.println(packet.getCommand());
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
+                        NcmMod.soundSystem.play(id);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
                     }
                 }else {
                     Minecraft.getMinecraft().getSoundHandler().stopSounds();
-                    NcmMod.soundSystem.backgroundMusic("custom.mp3", packet.getSource(), true);
+                    NcmMod.soundSystem.backgroundMusic("background.mp3", packet.getSource(), true);
                 }
             }else {
-                NcmMod.soundSystem.stop("custom.mp3");
+                if(packet.getPos()!=null){
+                    String id=EncryptUtil.MD5(packet.getPos().toString())+".mp3";
+                    NcmMod.soundSystem.stop(id);
+                }else{
+                    NcmMod.soundSystem.stop("background.mp3");
+                }
             }
         }
         return null;

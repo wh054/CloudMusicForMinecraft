@@ -9,7 +9,7 @@ public class GameSoundHandler {
     public void onGameSoundPlay(PlaySoundEvent event){
         if(event.getName().startsWith("music")){
             if(NcmMod.soundSystem!=null){
-                if(NcmMod.soundSystem.playing("custom.mp3")){
+                if(NcmMod.soundSystem.playing("background.mp3")){
                     event.setResultSound(null);
                     System.out.println("Stop Game Music "+event.getName());
                 }

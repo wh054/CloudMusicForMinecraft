@@ -3,7 +3,6 @@ package team.info.ncmfm.eventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -28,16 +27,18 @@ public class PlayerActionHandler {
     @SubscribeEvent
     public void onRightClickMusicCube(PlayerInteractEvent.RightClickBlock event){
         if(event.getSide() == Side.CLIENT){
-            Minecraft mc=Minecraft.getMinecraft();
-            Block block= event.getWorld().getBlockState(event.getPos()).getBlock();
-            if(block.getRegistryName()==BlockRegistryHandler.music_cube.getRegistryName()){
-                mc.displayGuiScreen(new MusicPannel(mc,new NeteaseCloudMusicManager(),event.getPos()));
+            if(event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND).isEmpty()){
+                Minecraft mc=Minecraft.getMinecraft();
+                Block block= event.getWorld().getBlockState(event.getPos()).getBlock();
+                if(block.getRegistryName()==BlockRegistryHandler.music_cube.getRegistryName()){
+                    mc.displayGuiScreen(new MusicPannel(mc,new NeteaseCloudMusicManager(),event.getPos()));
+                }
             }
         }
     }
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
-        NcmMod.soundSystem.stop("custom.mp3");
+        NcmMod.soundSystem.stop("background.mp3");
     }
 }
