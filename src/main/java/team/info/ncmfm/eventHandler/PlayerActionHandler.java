@@ -39,6 +39,6 @@ public class PlayerActionHandler {
 
     @SubscribeEvent
     public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
-        NcmMod.soundSystem.stop("background.mp3");
+        NcmMod.soundSystem.stop("background.StereoMp3");
     }
 }

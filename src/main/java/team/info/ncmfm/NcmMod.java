@@ -1,6 +1,5 @@
 package team.info.ncmfm;
 
-import net.minecraft.client.audio.SoundManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -37,8 +36,8 @@ public class NcmMod
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         logger = event.getModLog();
-        MusicPacketHandler.INSTANCE.registerMessage(MusicMessageHandler.class, MusicMessage.class, 223, Side.SERVER);
         MusicPacketHandler.INSTANCE.registerMessage(MusicMessageClientHandler.class, MusicMessage.class, 224, Side.CLIENT);
+        MusicPacketHandler.INSTANCE.registerMessage(MusicMessageHandler.class, MusicMessage.class, 223, Side.SERVER);
         proxy.preInit(event);
     }
 

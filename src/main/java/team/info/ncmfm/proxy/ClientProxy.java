@@ -8,15 +8,20 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import team.info.ncmfm.NcmMod;
-import team.info.ncmfm.audio.CodecMP3;
+import team.info.ncmfm.audio.CodecMonoMp3;
+import team.info.ncmfm.audio.CodecStereoMp3;
 import team.info.ncmfm.eventHandler.*;
 import team.info.ncmfm.interfaces.IProxy;
+import team.info.ncmfm.net.MusicMessage;
+import team.info.ncmfm.net.MusicMessageClientHandler;
+import team.info.ncmfm.net.MusicPacketHandler;
 
 import java.lang.reflect.Field;
 
@@ -30,9 +35,13 @@ public class ClientProxy implements IProxy {
         MinecraftForge.EVENT_BUS.register(new ItemRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new RenderGuiHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerActionHandler());
-        MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
+
+        // ”–BUG ‘›≤ª∆Ù”√
+        // MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
+
         try{
-            SoundSystemConfig.setCodec("mp3", CodecMP3.class);
+            SoundSystemConfig.setCodec("MonoMp3", CodecMonoMp3.class);
+            SoundSystemConfig.setCodec("StereoMp3", CodecStereoMp3.class);
         }catch (SoundSystemException ex){
             logger.error(ex.getMessage());
         }
