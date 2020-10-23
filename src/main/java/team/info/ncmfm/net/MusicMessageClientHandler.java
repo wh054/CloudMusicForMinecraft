@@ -23,7 +23,7 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
 
             if(packet.getCommand().equals(EnumMusicCommand.PLAY)){
                 if(packet.getPos()!=null){
-                    String id=EncryptUtil.MD5(packet.getPos().toString())+".mp3";
+                    String id=EncryptUtil.MD5(packet.getPos().toString())+".MonoMp3";
                     try {
                         NcmMod.soundSystem.newStreamingSource(
                                 false,
@@ -43,14 +43,22 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
                     }
                 }else {
                     Minecraft.getMinecraft().getSoundHandler().stopSounds();
-                    NcmMod.soundSystem.backgroundMusic("background.mp3", packet.getSource(), true);
+                    try {
+                        NcmMod.soundSystem.backgroundMusic(
+                                "background.StereoMp3",
+                               new URL(packet.getSource()),
+                                "background.StereoMp3",
+                                true);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
                 }
             }else {
                 if(packet.getPos()!=null){
-                    String id=EncryptUtil.MD5(packet.getPos().toString())+".mp3";
+                    String id=EncryptUtil.MD5(packet.getPos().toString())+".MonoMp3";
                     NcmMod.soundSystem.stop(id);
                 }else{
-                    NcmMod.soundSystem.stop("background.mp3");
+                    NcmMod.soundSystem.stop("background.StereoMp3");
                 }
             }
         }
