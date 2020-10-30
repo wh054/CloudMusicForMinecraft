@@ -12,19 +12,19 @@ public class EncryptUtil {
         System.out.println(MD5("13342690797"));
     }
 
-    // md5åŠ å¯†
+    // md5¼ÓÃÜ
     public static String MD5(String inputText) {
         return encrypt(inputText, "MD5").toUpperCase();
     }
 
     /**
-     * @param inputText     è¦åŠ å¯†çš„å†…å®¹
-     * @param algorithmName åŠ å¯†ç®—æ³•åç§°
+     * @param inputText     Òª¼ÓÃÜµÄÄÚÈİ
+     * @param algorithmName ¼ÓÃÜËã·¨Ãû³Æ
      * @return
      */
     private static String encrypt(String inputText, String algorithmName) {
         if (inputText == null || "".equals(inputText.trim())) {
-            throw new IllegalArgumentException("è¯·è¾“å…¥è¦åŠ å¯†çš„å†…å®¹");
+            throw new IllegalArgumentException("ÇëÊäÈëÒª¼ÓÃÜµÄÄÚÈİ");
         }
         if (algorithmName == null || "".equals(algorithmName.trim())) {
             algorithmName = "MD5";
@@ -40,7 +40,7 @@ public class EncryptUtil {
         return null;
     }
 
-    // è¿”å›åå…­è¿›åˆ¶å­—ç¬¦ä¸²
+    // ·µ»ØÊ®Áù½øÖÆ×Ö·û´®
     private static String hex(byte[] arr) {
         StringBuilder sb = new StringBuilder();
         for (byte anArr : arr) {

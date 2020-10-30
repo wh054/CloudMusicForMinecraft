@@ -31,8 +31,6 @@ public class NcmMod
 
     private static Logger logger;
 
-    public static SoundSystem soundSystem;
-
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event){
         logger = event.getModLog();

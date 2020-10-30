@@ -128,7 +128,6 @@ shadowJar {
     classifier = ""
     dependencies {
         include(dependency('com.badlogicgames.jlayer:jlayer:1.0.1-gdx'))
-        include(dependency('com.paulscode:soundsystem:20120107'))
         //include(dependency(fileTree(dir:'libs',include:'*.jar')))
     }
 }

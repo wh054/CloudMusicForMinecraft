@@ -8,25 +8,20 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
-import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.audio.CodecMonoMp3;
 import team.info.ncmfm.audio.CodecStereoMp3;
 import team.info.ncmfm.eventHandler.*;
 import team.info.ncmfm.interfaces.IProxy;
-import team.info.ncmfm.net.MusicMessage;
-import team.info.ncmfm.net.MusicMessageClientHandler;
-import team.info.ncmfm.net.MusicPacketHandler;
-
 import java.lang.reflect.Field;
 
 public class ClientProxy implements IProxy {
     private static final Logger logger = LogManager.getLogger(ClientProxy.class);
+    public static SoundSystem soundSystem;
 
     @Override
     public void preInit(FMLPreInitializationEvent event)
@@ -67,7 +62,7 @@ public class ClientProxy implements IProxy {
             field2.setAccessible(true);
 
             SoundManager soundManager= (SoundManager)field.get(soundHandler);
-            NcmMod.soundSystem =(SoundSystem)field2.get(soundManager);
+            soundSystem =(SoundSystem)field2.get(soundManager);
         }catch (IllegalAccessException ex){
             logger.error(ex.getMessage());
         }
