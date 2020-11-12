@@ -18,9 +18,9 @@ public class GuiSlotTracks extends GuiScrollingList {
     private ArrayList<TrackContainer> collections;
     private int slotHeight;
 
-    public GuiSlotTracks(MusicPannel parent, ArrayList<TrackContainer> trackList, int listWidth, int slotHeight)
+    public GuiSlotTracks(MusicPannel parent, ArrayList<TrackContainer> trackList, int slotHeight)
     {
-        super(parent.getMinecraftInstance(), parent.width/2-30, parent.height, 32, parent.height - 88 + 4, parent.width/2+20, slotHeight, parent.width, parent.height);
+        super(parent.getMinecraftInstance(), (parent.width/3)*2-30, parent.height, 8, parent.height-50, parent.width/3+20, slotHeight, parent.width, parent.height);
         this.parent = parent;
         this.collections=trackList;
         this.slotHeight=slotHeight;

@@ -8,44 +8,50 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.component.GuiSlotPlayList;
+import team.info.ncmfm.component.GuiSlotSubList;
 import team.info.ncmfm.component.GuiSlotTracks;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.MusicInfoWrapper;
 import team.info.ncmfm.model.PlayListContainer;
+import team.info.ncmfm.model.SubListContainer;
 import team.info.ncmfm.model.TrackContainer;
 import team.info.ncmfm.net.EnumMusicCommand;
 import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicPacketHandler;
+import team.info.ncmfm.proxy.ClientProxy;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class MusicPannel extends GuiScreen {
-    private ResourceLocation texture = new ResourceLocation(NcmMod.MODID, "textures/gui/screen2.jpg");
+    private ResourceLocation texture = new ResourceLocation(NcmMod.MODID, "textures/gui/screen.png");
     public final int width;
     public final int height;
 
-    private int playListWidth;
-    private int tracksWidth=200;
 
     private static final int BUTTON_STOP_MUSIC = 0;
     private static final int BUTTON_REFLASH_STATE =1;
 
     private ArrayList<PlayListContainer> playList;
     private ArrayList<TrackContainer> trackList;
+    private ArrayList<SubListContainer> subList;
 
     private GuiSlotPlayList slotPlayList;
+    private GuiSlotSubList slotSubList;
     private GuiSlotTracks slotTracks;
 
     private int playList_selected_index = -1;
+    private int subList_selected_index = -1;
     private int track_selected_index=-1;
+
     private PlayListContainer selectedPlayList;
+    private SubListContainer selectedSubList;
     private TrackContainer selectedTrack;
 
     private IMusicManager musicManager;
@@ -54,6 +60,7 @@ public class MusicPannel extends GuiScreen {
     public MusicPannel(Minecraft mc,IMusicManager musicManager){
         playList=new ArrayList<>();
         trackList=new ArrayList<>();
+        subList=new ArrayList<>();
         ScaledResolution scaled = new ScaledResolution(mc);
         width = scaled.getScaledWidth();
         height = scaled.getScaledHeight();
@@ -63,6 +70,7 @@ public class MusicPannel extends GuiScreen {
     public MusicPannel(Minecraft mc, IMusicManager musicManager, BlockPos pos){
         playList=new ArrayList<>();
         trackList=new ArrayList<>();
+        subList=new ArrayList<>();
         ScaledResolution scaled = new ScaledResolution(mc);
         width = scaled.getScaledWidth();
         height = scaled.getScaledHeight();
@@ -75,20 +83,13 @@ public class MusicPannel extends GuiScreen {
         int slotHeight = 15;
         musicManager.login();
         playList.addAll(musicManager.LoadPlayList());
-        for (PlayListContainer plc : playList)
-        {
-            playListWidth = Math.max(playListWidth,getFontRenderer().getStringWidth(plc.getName()) + 10);
-        }
-
-        for (TrackContainer tc : trackList)
-        {
-            tracksWidth = Math.max(tracksWidth,getFontRenderer().getStringWidth(tc.getName()) + 10);
-        }
+        subList.addAll(musicManager.LoadSubList());
 
         this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 80, 20,"Í£Ö¹²¥·Å"));
         this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 80, 20,"¸üÐÂ"));
-        this.slotPlayList = new GuiSlotPlayList(this, playList, playListWidth, slotHeight);
-        this.slotTracks=new GuiSlotTracks(this,trackList,tracksWidth,slotHeight);
+        this.slotPlayList = new GuiSlotPlayList(this, playList, slotHeight);
+        this.slotSubList = new GuiSlotSubList(this, subList, slotHeight);
+        this.slotTracks=new GuiSlotTracks(this,trackList,slotHeight);
     }
 
     @Override
@@ -97,6 +98,9 @@ public class MusicPannel extends GuiScreen {
         drawScaledCustomSizeModalRect(0, 0, 0, 0, 1828, (int)(1828*(height/(float)width)), width, height, 1828, 1292);
         if(this.slotPlayList!=null){
             this.slotPlayList.drawScreen(mouseX, mouseY, partialTicks);
+        }
+        if(this.slotSubList!=null){
+            this.slotSubList.drawScreen(mouseX, mouseY, partialTicks);
         }
         if(this.slotTracks!=null){
             this.slotTracks.drawScreen(mouseX, mouseY, partialTicks);
@@ -141,6 +145,14 @@ public class MusicPannel extends GuiScreen {
         this.selectedPlayList = (index >= 0 && index <= playList.size()) ? playList.get(playList_selected_index) : null;
     }
 
+    public void selectSubListIndex(int index)
+    {
+        if (index == this.subList_selected_index)
+            return;
+        this.subList_selected_index = index;
+        this.selectedSubList = (index >= 0 && index <= subList.size()) ? subList.get(subList_selected_index) : null;
+    }
+
     public void selectTrackIndex(int index){
         if (index == this.track_selected_index){
             return;
@@ -155,16 +167,18 @@ public class MusicPannel extends GuiScreen {
         return index == playList_selected_index;
     }
 
+    public boolean subListIndexSelected(int index)
+    {
+        return index == subList_selected_index;
+    }
+
     public boolean trackIndexSelected(int index){
         return index==track_selected_index;
     }
 
-    public void LoadTrackList(){
+    public void LoadTrackList(List<TrackContainer> tracks){
         trackList.clear();
-        PlayListContainer plc= playList.get(this.playList_selected_index);
-        if(plc!=null){
-            trackList.addAll(musicManager.LoadTrackList(plc.getId()));
-        }
+        trackList.addAll(tracks);
     }
 
     public void PlayMusic(){

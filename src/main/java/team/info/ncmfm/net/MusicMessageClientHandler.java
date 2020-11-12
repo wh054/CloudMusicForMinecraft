@@ -49,7 +49,7 @@ public class MusicMessageClientHandler implements IMessageHandler<MusicMessage, 
                                 "background.StereoMp3",
                                new URL(packet.getSource()),
                                 "background.StereoMp3",
-                                true);
+                                false);
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     }

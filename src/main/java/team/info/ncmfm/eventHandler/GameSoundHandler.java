@@ -9,6 +9,7 @@ public class GameSoundHandler {
     public void onGameSoundPlay(PlaySoundEvent event){
         if(event.getName().startsWith("music")){
             if(ClientProxy.soundSystem!=null){
+                //正在播放音乐的时候，不播放游戏自身背景音乐
                 if(ClientProxy.soundSystem.playing("background.StereoMp3")){
                     event.setResultSound(null);
                     System.out.println("Stop Game Music "+event.getName());

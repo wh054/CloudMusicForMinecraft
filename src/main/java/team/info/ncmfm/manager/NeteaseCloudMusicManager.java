@@ -10,18 +10,20 @@ import team.info.ncmfm.NcmConfig;
 import team.info.ncmfm.entity.*;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.PlayListContainer;
+import team.info.ncmfm.model.SubListContainer;
 import team.info.ncmfm.model.TrackContainer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NeteaseCloudMusicManager implements IMusicManager {
     private static final String HOST=NcmConfig.host;
-    private static HashMap<String, Object> cache=new HashMap<String,Object>();
+    public static HashMap<String, Object> cache=new HashMap<String,Object>();
 
     private String bitRate=NcmConfig.bitRate;
 
@@ -106,6 +108,31 @@ public class NeteaseCloudMusicManager implements IMusicManager {
     }
 
     @Override
+    public ArrayList<SubListContainer> LoadSubList(){
+        ArrayList<SubListContainer> as=new ArrayList<>();
+
+        if(cache.containsKey("loginInfo")){
+
+            LoginInfo loginInfo=(LoginInfo)cache.get("loginInfo");
+            Sublist sublist=null;
+
+            if(!cache.containsKey("sublist")){
+                sublist=GetSublist();
+                cache.put("sublist",sublist);
+            }else {
+                sublist=(Sublist)cache.get("sublist");
+            }
+
+            if(sublist!=null){
+                for(Sublist.DataBean temp: sublist.getData()){
+                    as.add(new SubListContainer(temp.getId(),temp.getName()));
+                }
+            }
+        }
+        return as;
+    }
+
+    @Override
     public String GetMusicById(long id) {
         String url=HOST+"/song/url?id="+id+"&br="+ bitRate;
         String musicUrl="";
@@ -121,9 +148,19 @@ public class NeteaseCloudMusicManager implements IMusicManager {
         return doGet(PlayListCollection.class,url);
     }
 
-    private TrackCollection GetTracksById(long id){
+    public static TrackCollection GetTracksById(long id){
         String url=HOST+"/playlist/detail?id="+id;
         return doGet(TrackCollection.class,url);
+    }
+
+    public static AlbumTracks GetTracksBySubId(long id){
+        String url=HOST+"/album?id="+id;
+        return doGet(AlbumTracks.class,url);
+    }
+
+    private Sublist GetSublist(){
+        String url=HOST+"/album/sublist";
+        return doGet(Sublist.class,url);
     }
 
     private HttpResponse doGet(String url) throws IOException {
@@ -136,7 +173,7 @@ public class NeteaseCloudMusicManager implements IMusicManager {
         return client.execute(get);
     }
 
-    private <T> T doGet(Class <T> t,String url){
+    private static <T> T doGet(Class <T> t,String url){
         T rs=null;
         CloseableHttpClient client = HttpClientBuilder.create().build();
         HttpGet get = new HttpGet(url);
