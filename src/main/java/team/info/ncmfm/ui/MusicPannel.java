@@ -14,6 +14,7 @@ import team.info.ncmfm.NcmMod;
 import team.info.ncmfm.component.GuiSlotPlayList;
 import team.info.ncmfm.component.GuiSlotSubList;
 import team.info.ncmfm.component.GuiSlotTracks;
+import team.info.ncmfm.entity.PersonalFM;
 import team.info.ncmfm.interfaces.IMusicManager;
 import team.info.ncmfm.model.MusicInfoWrapper;
 import team.info.ncmfm.model.PlayListContainer;
@@ -26,6 +27,7 @@ import team.info.ncmfm.net.MusicPacketHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @SideOnly(Side.CLIENT)
 public class MusicPannel extends GuiScreen {
@@ -36,6 +38,7 @@ public class MusicPannel extends GuiScreen {
 
     private static final int BUTTON_STOP_MUSIC = 0;
     private static final int BUTTON_REFLASH_STATE =1;
+    private static final int BUTTON_PERSONAL_FM=2;
 
     private ArrayList<PlayListContainer> playList;
     private ArrayList<TrackContainer> trackList;
@@ -84,8 +87,9 @@ public class MusicPannel extends GuiScreen {
         playList.addAll(musicManager.LoadPlayList());
         subList.addAll(musicManager.LoadSubList());
 
-        this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 80, 20,"停止播放"));
-        this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 80, 20,"更新"));
+        this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 50, 20,"停止播放"));
+        this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 50, 20,"更新"));
+        this.buttonList.add(new GuiButton(BUTTON_PERSONAL_FM,(int)(width*0.55), (int)(height*0.85), 50, 20,"私人FM"));
         this.slotPlayList = new GuiSlotPlayList(this, playList, slotHeight);
         this.slotSubList = new GuiSlotSubList(this, subList, slotHeight);
         this.slotTracks=new GuiSlotTracks(this,trackList,slotHeight);
@@ -120,6 +124,14 @@ public class MusicPannel extends GuiScreen {
                 break;
             case BUTTON_STOP_MUSIC:
                 StopMusic();
+                break;
+            case BUTTON_PERSONAL_FM:
+                PersonalFM pm= musicManager.personalFm();
+                if(!pm.getData().isEmpty()){
+                    TrackContainer tc=new TrackContainer(pm.getData().get(0).getId(),pm.getData().get(0).getName());
+                    this.selectedTrack=tc;
+                }
+                PlayMusic();
                 break;
             default:
                 super.actionPerformed(button);

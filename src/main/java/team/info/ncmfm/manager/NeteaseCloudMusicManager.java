@@ -19,7 +19,9 @@ import team.info.ncmfm.model.TrackContainer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +31,7 @@ public class NeteaseCloudMusicManager implements IMusicManager {
     public static HashMap<String, Object> cache=new HashMap<String,Object>();
 
     private String bitRate=NcmConfig.bitRate;
+
 
     public void login(){
         try{
@@ -139,6 +142,13 @@ public class NeteaseCloudMusicManager implements IMusicManager {
         return as;
     }
 
+    /** 
+     * 获取音乐 url
+     * @Param: [id]
+     * @Return: java.lang.String
+     * @Author: FOXCELL
+     * @Date: 2020/11/23 9:42
+     */
     @Override
     public String GetMusicById(long id) {
         String url=HOST+"/song/url?id="+id+"&br="+ bitRate;
@@ -165,9 +175,27 @@ public class NeteaseCloudMusicManager implements IMusicManager {
         return doGet(AlbumTracks.class,url);
     }
 
+    /**
+     * 已收藏专辑列表
+     * @Return: team.info.ncmfm.entity.Sublist
+     * @Author: FOXCELL
+     * @Date: 2020/11/23 9:40
+     */
     private Sublist GetSublist(){
         String url=HOST+"/album/sublist";
         return doGet(Sublist.class,url);
+    }
+
+    /**
+     * 私人FM
+     * @Return: team.info.ncmfm.entity.PersonalFM
+     * @Author: FOXCELL
+     * @Date: 2020/11/23 9:39
+     */
+    public PersonalFM personalFm(){
+        long timestamp=new Date().getTime();
+        String url=HOST+"/personal_fm?timestamp="+timestamp;
+        return doGet(PersonalFM.class,url);
     }
 
     private HttpResponse doGet(String url) throws IOException {
