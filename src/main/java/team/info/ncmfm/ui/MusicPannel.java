@@ -22,7 +22,6 @@ import team.info.ncmfm.model.TrackContainer;
 import team.info.ncmfm.net.EnumMusicCommand;
 import team.info.ncmfm.net.MusicMessage;
 import team.info.ncmfm.net.MusicPacketHandler;
-import team.info.ncmfm.proxy.ClientProxy;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -2,10 +2,13 @@ package team.info.ncmfm.manager;
 
 import com.google.gson.Gson;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import team.info.ncmfm.NcmConfig;
 import team.info.ncmfm.entity.*;
 import team.info.ncmfm.interfaces.IMusicManager;
@@ -17,34 +20,38 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NeteaseCloudMusicManager implements IMusicManager {
+    private static final Logger logger = LogManager.getLogger(NeteaseCloudMusicManager.class);
     private static final String HOST=NcmConfig.host;
     public static HashMap<String, Object> cache=new HashMap<String,Object>();
 
     private String bitRate=NcmConfig.bitRate;
 
     public void login(){
-        String phone=NcmConfig.phone;
-        String password= NcmConfig.password;
-        String url=HOST+"/login/cellphone?phone="+phone+"&password="+password;
-        if(cache.isEmpty()){
-            LoginInfo rs=doGet(LoginInfo.class,url);
-            if(rs.getCode()==200){
-                cache.put("loginInfo",rs);
+        try{
+            String phone=NcmConfig.phone;
+            String password= NcmConfig.password;
+            String url=HOST+"/login/cellphone?phone="+phone+"&password="+password;
+            if(cache.isEmpty()){
+                LoginInfo rs=doGet(LoginInfo.class,url);
+                if(rs.getCode()==200){
+                    cache.put("loginInfo",rs);
 
-                String regex="MUSIC_U=([^;]*)(|$)";
-                String input=rs.getCookie();
-                Pattern r = Pattern.compile(regex,Pattern.MULTILINE);
-                Matcher m = r.matcher(input);
+                    String regex="MUSIC_U=([^;]*)(|$)";
+                    String input=rs.getCookie();
+                    Pattern r = Pattern.compile(regex,Pattern.MULTILINE);
+                    Matcher m = r.matcher(input);
 
-                if(m.find()) {
-                    cache.put("Cookie",m.group(0));
+                    if(m.find()) {
+                        cache.put("Cookie",m.group(0));
+                    }
                 }
             }
+        }catch (Exception ex){
+            logger.error("‘∆“Ù¿÷µ«¬º ß∞‹£∫"+ex.getMessage());
         }
     }
 
@@ -176,7 +183,16 @@ public class NeteaseCloudMusicManager implements IMusicManager {
     private static <T> T doGet(Class <T> t,String url){
         T rs=null;
         CloseableHttpClient client = HttpClientBuilder.create().build();
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(200)
+                .setConnectionRequestTimeout(200)
+                // «Î«Û≥¨ ±400ms
+                .setSocketTimeout(5000)
+                .build();
+
         HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
+
         try {
             get.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36");
             if(cache.size()>0){
@@ -186,8 +202,8 @@ public class NeteaseCloudMusicManager implements IMusicManager {
             String jsonResult = EntityUtils.toString(response.getEntity());
             Gson gson = new Gson();
             rs=gson.fromJson(jsonResult,(Type)t);
-        }catch (IOException e) {
-            System.out.println(e.getMessage());
+        }catch (Exception e) {
+            logger.error(e.getMessage());
         }
         return rs;
     }

@@ -30,9 +30,7 @@ public class ClientProxy implements IProxy {
         MinecraftForge.EVENT_BUS.register(new ItemRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new RenderGuiHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerActionHandler());
-
-        // ”–BUG ‘›≤ª∆Ù”√
-         MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
+        MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
 
         try{
             SoundSystemConfig.setCodec("MonoMp3", CodecMonoMp3.class);
