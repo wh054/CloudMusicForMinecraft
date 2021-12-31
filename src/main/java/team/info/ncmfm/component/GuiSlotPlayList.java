@@ -48,23 +48,30 @@ public class GuiSlotPlayList extends GuiScrollingList {
         ArrayList<TrackContainer> as=new ArrayList<>();
         TrackCollection trackCollection=null;
 
-        String collectionId=Long.toString(id);
-        if(NeteaseCloudMusicManager.cache.containsKey(collectionId)){
-            trackCollection=(TrackCollection)NeteaseCloudMusicManager.cache.get(collectionId);
-        }else {
-            trackCollection=NeteaseCloudMusicManager.GetTracksById(id);
-            NeteaseCloudMusicManager.cache.put(collectionId,trackCollection);
-        }
-        if(trackCollection!=null){
-            for(PlayList.Tracks temp: trackCollection.getPlaylist().getTracks()){
-                as.add(new TrackContainer(
-                        temp.getId(),
-                        temp.getName(),
-                        temp.getAr().get(0).getName(),
-                        temp.getAl().getName()
-                ));
+        try{
+            String collectionId=Long.toString(id);
+            if(NeteaseCloudMusicManager.cache.containsKey(collectionId)){
+                trackCollection=(TrackCollection)NeteaseCloudMusicManager.cache.get(collectionId);
+            }else {
+                trackCollection=NeteaseCloudMusicManager.GetTracksById(id);
+                if(trackCollection.getPlaylist()!=null){
+                    NeteaseCloudMusicManager.cache.put(collectionId,trackCollection);
+                }
             }
+            if(trackCollection.getPlaylist() !=null){
+                for(PlayList.Tracks temp: trackCollection.getPlaylist().getTracks()){
+                    as.add(new TrackContainer(
+                            temp.getId(),
+                            temp.getName(),
+                            temp.getAr().get(0).getName(),
+                            temp.getAl().getName()
+                    ));
+                }
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
+
         return as;
     }
 

@@ -87,9 +87,9 @@ public class MusicPannel extends GuiScreen {
         playList.addAll(musicManager.LoadPlayList());
         subList.addAll(musicManager.LoadSubList());
 
-        this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 50, 20,"Í£Ö¹²¥·Å"));
-        this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 50, 20,"¸üÐÂ"));
-        this.buttonList.add(new GuiButton(BUTTON_PERSONAL_FM,(int)(width*0.55), (int)(height*0.85), 50, 20,"Ë½ÈËFM"));
+        this.buttonList.add(new GuiButton(BUTTON_STOP_MUSIC,(int)(width*0.75), (int)(height*0.85), 50, 20,"åœæ­¢æ’­æ”¾"));
+        this.buttonList.add(new GuiButton(BUTTON_REFLASH_STATE,(int)(width*0.25), (int)(height*0.85), 50, 20,"æ›´æ–°"));
+        this.buttonList.add(new GuiButton(BUTTON_PERSONAL_FM,(int)(width*0.55), (int)(height*0.85), 50, 20,"ç§äººFM"));
         this.slotPlayList = new GuiSlotPlayList(this, playList, slotHeight);
         this.slotSubList = new GuiSlotSubList(this, subList, slotHeight);
         this.slotTracks=new GuiSlotTracks(this,trackList,slotHeight);
@@ -195,15 +195,21 @@ public class MusicPannel extends GuiScreen {
     public void PlayMusic(){
         MusicInfoWrapper packet=new MusicInfoWrapper();
         packet.setCommand(EnumMusicCommand.PLAY);
-        String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
-        packet.setSource(musicUrl);
-        if(blockPos!=null){
-            packet.setPos(this.blockPos);
-        }else {
-            String msg="µã²¥¸èÇú==>"+this.selectedTrack.getName();
+        try{
+            String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
+            packet.setSource(musicUrl);
+
+            if(blockPos!=null){
+                packet.setPos(this.blockPos);
+            }else {
+                String msg="ç‚¹æ’­æ­Œæ›²==>"+this.selectedTrack.getName();
+                super.sendChatMessage(msg,true);
+            }
+            MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
+        }catch (Exception e){
+            String msg="ç‚¹æ’­å¤±è´¥==>"+e.getMessage();
             super.sendChatMessage(msg,true);
         }
-        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
     }
 
     public void StopMusic(){

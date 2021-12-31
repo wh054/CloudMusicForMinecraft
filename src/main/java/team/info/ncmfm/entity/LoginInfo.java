@@ -73,7 +73,7 @@ public class LoginInfo {
         private int type;
         private int status;
         private int whitelistAuthority;
-        private int createTime;
+        private long createTime;
         private String salt;
         private int tokenVersion;
         private int ban;
@@ -123,11 +123,11 @@ public class LoginInfo {
             this.whitelistAuthority = whitelistAuthority;
         }
 
-        public int getCreateTime() {
+        public long getCreateTime() {
             return createTime;
         }
 
-        public void setCreateTime(int createTime) {
+        public void setCreateTime(long createTime) {
             this.createTime = createTime;
         }
 

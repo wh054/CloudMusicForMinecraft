@@ -21,7 +21,7 @@ public interface IMusicManager {
     void login();
 
     /**
-     * ÀΩ»ÀFM
+     * ÁßÅ‰∫∫FM
      * @Return: team.info.ncmfm.entity.PersonalFM
      * @Author: FOXCELL
      * @Date: 2020/11/23 9:55

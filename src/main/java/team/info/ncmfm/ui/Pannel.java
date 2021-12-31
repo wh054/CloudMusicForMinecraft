@@ -11,6 +11,6 @@ public class Pannel extends Gui {
         int width = scaled.getScaledWidth();
         int height = scaled.getScaledHeight();
 
-        drawCenteredString(mc.fontRenderer, "����ģ�Ϊʲô", width / 2, (height / 2) - 4, Integer.parseInt("FFAA00", 16));
+        drawCenteredString(mc.fontRenderer, "你妈的，为什么", width / 2, (height / 2) - 4, Integer.parseInt("FFAA00", 16));
     }
 }

@@ -6,12 +6,12 @@ import net.minecraftforge.common.config.Config;
         modid = NcmMod.MODID
 )
 public class NcmConfig {
-    @Config.Comment("ÊÖ»úºÅ")
+    @Config.Comment("æ‰‹æœºå·")
     public static String phone="test";
-    @Config.Comment("ÃÜÂë")
+    @Config.Comment("å¯†ç ")
     public static String password="test";
-    @Config.Comment("ÔÆÒôÀÖAPI Host")
+    @Config.Comment("äº‘éŸ³ä¹API Host")
     public static String host="test";
-    @Config.Comment("ÂëÂÊ")
+    @Config.Comment("ç ç‡")
     public static String bitRate="128000";
 }

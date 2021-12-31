@@ -9,7 +9,7 @@ public class GameSoundHandler {
     public void onGameSoundPlay(PlaySoundEvent event){
         if(event.getName().startsWith("music")){
             if(ClientProxy.soundSystem!=null){
-                //ÕıÔÚ²¥·ÅÒôÀÖµÄÊ±ºò£¬²»²¥·ÅÓÎÏ·×ÔÉí±³¾°ÒôÀÖ
+                //æ­£åœ¨æ’­æ”¾éŸ³ä¹çš„æ—¶å€™ï¼Œä¸æ’­æ”¾æ¸¸æˆè‡ªèº«èƒŒæ™¯éŸ³ä¹
                 if(ClientProxy.soundSystem.playing("background.StereoMp3")){
                     event.setResultSound(null);
                     System.out.println("Stop Game Music "+event.getName());

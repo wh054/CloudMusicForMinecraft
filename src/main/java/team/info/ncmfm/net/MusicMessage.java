@@ -15,14 +15,14 @@ public class MusicMessage implements IMessage {
     }
 
 
-    //读取
+    //璇诲彇
     @Override
     public void fromBytes(ByteBuf buf) {
         send = convertByteBufToString(buf);
     }
 
 
-    //写入
+    //鍐欏叆
     @Override
     public void toBytes(ByteBuf buf) {
         stringToByteBuf(buf,send);
@@ -31,9 +31,9 @@ public class MusicMessage implements IMessage {
 
     private String convertByteBufToString(ByteBuf buf) {
         String str;
-        if (buf.hasArray()) { // 处理堆缓冲区
+        if (buf.hasArray()) { // 澶勭悊鍫嗙紦鍐插尯
             str = new String(buf.array(), buf.arrayOffset() + buf.readerIndex(), buf.readableBytes());
-        } else { // 处理直接缓冲区以及复合缓冲区
+        } else { // 澶勭悊鐩存帴缂撳啿鍖轰互鍙婂鍚堢紦鍐插尯
             byte[] bytes = new byte[buf.readableBytes()];
             buf.getBytes(buf.readerIndex(), bytes);
             str = new String(bytes, 0, buf.readableBytes());
