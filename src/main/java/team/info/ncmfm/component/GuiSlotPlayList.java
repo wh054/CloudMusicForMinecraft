@@ -4,16 +4,11 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import team.info.ncmfm.entity.PlayList;
-import team.info.ncmfm.entity.TrackCollection;
-import team.info.ncmfm.manager.NeteaseCloudMusicManager;
 import team.info.ncmfm.model.PlayListContainer;
-import team.info.ncmfm.model.SubListContainer;
-import team.info.ncmfm.model.TrackContainer;
 import team.info.ncmfm.ui.MusicPannel;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class GuiSlotPlayList extends GuiScrollingList {
 
@@ -39,41 +34,10 @@ public class GuiSlotPlayList extends GuiScrollingList {
         this.parent.selectPlayListIndex(index);
         if(doubleClick){
             PlayListContainer lc= collections.get(index);
-            List<TrackContainer> trackList= getTrackList(lc.getId());
-            this.parent.LoadTrackList(trackList);
+            this.parent.LoadTrackList(this.parent.getPlayListTracks(lc.getId()));
         }
     }
 
-    private ArrayList<TrackContainer> getTrackList(long id) {
-        ArrayList<TrackContainer> as=new ArrayList<>();
-        TrackCollection trackCollection=null;
-
-        try{
-            String collectionId=Long.toString(id);
-            if(NeteaseCloudMusicManager.cache.containsKey(collectionId)){
-                trackCollection=(TrackCollection)NeteaseCloudMusicManager.cache.get(collectionId);
-            }else {
-                trackCollection=NeteaseCloudMusicManager.GetTracksById(id);
-                if(trackCollection.getPlaylist()!=null){
-                    NeteaseCloudMusicManager.cache.put(collectionId,trackCollection);
-                }
-            }
-            if(trackCollection.getPlaylist() !=null){
-                for(PlayList.Tracks temp: trackCollection.getPlaylist().getTracks()){
-                    as.add(new TrackContainer(
-                            temp.getId(),
-                            temp.getName(),
-                            temp.getAr().get(0).getName(),
-                            temp.getAl().getName()
-                    ));
-                }
-            }
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-
-        return as;
-    }
 
     @Override
     protected boolean isSelected(int index) {

@@ -6,12 +6,10 @@ import net.minecraftforge.common.config.Config;
         modid = NcmMod.MODID
 )
 public class NcmConfig {
-    @Config.Comment("手机号")
-    public static String phone="test";
-    @Config.Comment("密码")
-    public static String password="test";
-    @Config.Comment("云音乐API Host")
-    public static String host="test";
+    @Config.Comment("网易云 API Enhanced Host")
+    public static String host="http://127.0.0.1:3000";
+    @Config.Comment("网易云 Cookie（可留空，未登录时游戏内会弹出二维码扫码登录并自动回填）")
+    public static String cookie="";
     @Config.Comment("码率")
     public static String bitRate="128000";
 }

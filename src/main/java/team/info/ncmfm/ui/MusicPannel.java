@@ -27,7 +27,6 @@ import team.info.ncmfm.net.MusicPacketHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @SideOnly(Side.CLIENT)
 public class MusicPannel extends GuiScreen {
@@ -84,6 +83,10 @@ public class MusicPannel extends GuiScreen {
     public void initGui() {
         int slotHeight = 15;
         musicManager.login();
+        if (!musicManager.isLoggedIn()) {
+            mc.displayGuiScreen(new QrLoginScreen(mc, musicManager, blockPos));
+            return;
+        }
         playList.addAll(musicManager.LoadPlayList());
         subList.addAll(musicManager.LoadSubList());
 
@@ -127,10 +130,13 @@ public class MusicPannel extends GuiScreen {
                 break;
             case BUTTON_PERSONAL_FM:
                 PersonalFM pm= musicManager.personalFm();
-                if(!pm.getData().isEmpty()){
-                    TrackContainer tc=new TrackContainer(pm.getData().get(0).getId(),pm.getData().get(0).getName());
-                    this.selectedTrack=tc;
+                if(pm == null || pm.getData() == null || pm.getData().isEmpty() || pm.getData().get(0) == null){
+                    super.sendChatMessage("私人FM获取失败",true);
+                    return;
                 }
+                PersonalFM.DataBean data=pm.getData().get(0);
+                TrackContainer tc=new TrackContainer(data.getId(),data.getName());
+                this.selectedTrack=tc;
                 PlayMusic();
                 break;
             default:
@@ -153,7 +159,7 @@ public class MusicPannel extends GuiScreen {
         if (index == this.playList_selected_index)
             return;
         this.playList_selected_index = index;
-        this.selectedPlayList = (index >= 0 && index <= playList.size()) ? playList.get(playList_selected_index) : null;
+        this.selectedPlayList = (index >= 0 && index < playList.size()) ? playList.get(playList_selected_index) : null;
     }
 
     public void selectSubListIndex(int index)
@@ -161,7 +167,7 @@ public class MusicPannel extends GuiScreen {
         if (index == this.subList_selected_index)
             return;
         this.subList_selected_index = index;
-        this.selectedSubList = (index >= 0 && index <= subList.size()) ? subList.get(subList_selected_index) : null;
+        this.selectedSubList = (index >= 0 && index < subList.size()) ? subList.get(subList_selected_index) : null;
     }
 
     public void selectTrackIndex(int index){
@@ -169,7 +175,7 @@ public class MusicPannel extends GuiScreen {
             return;
         }
         this.track_selected_index = index;
-        this.selectedTrack = (index >= 0 && index <= trackList.size()) ? trackList.get(track_selected_index) : null;
+        this.selectedTrack = (index >= 0 && index < trackList.size()) ? trackList.get(track_selected_index) : null;
     }
 
 
@@ -189,14 +195,34 @@ public class MusicPannel extends GuiScreen {
 
     public void LoadTrackList(List<TrackContainer> tracks){
         trackList.clear();
-        trackList.addAll(tracks);
+        if(tracks != null){
+            trackList.addAll(tracks);
+        }
+        this.track_selected_index=-1;
+        this.selectedTrack=null;
+    }
+
+    public ArrayList<TrackContainer> getPlayListTracks(long id) {
+        return musicManager.LoadTrackList(id);
+    }
+
+    public ArrayList<TrackContainer> getAlbumTracks(long id) {
+        return musicManager.LoadAlbumTrackList(id);
     }
 
     public void PlayMusic(){
+        if(this.selectedTrack == null){
+            super.sendChatMessage("请先选择歌曲",true);
+            return;
+        }
         MusicInfoWrapper packet=new MusicInfoWrapper();
         packet.setCommand(EnumMusicCommand.PLAY);
         try{
             String musicUrl=musicManager.GetMusicById(this.selectedTrack.getId());
+            if(isBlank(musicUrl)){
+                super.sendChatMessage("点播失败==>未获取到音乐地址",true);
+                return;
+            }
             packet.setSource(musicUrl);
 
             if(blockPos!=null){
@@ -210,6 +236,18 @@ public class MusicPannel extends GuiScreen {
             String msg="点播失败==>"+e.getMessage();
             super.sendChatMessage(msg,true);
         }
+    }
+
+    private boolean isBlank(String value) {
+        if(value == null){
+            return true;
+        }
+        for(int i = 0; i < value.length(); i++){
+            if(!Character.isWhitespace(value.charAt(i))){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void StopMusic(){

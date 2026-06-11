@@ -25,6 +25,7 @@ public class MusicPacket {
     public class Data{
         private long id;
         private String url;
+        private String proxyUrl;
 
         public long getId() {
             return id;
@@ -41,5 +42,14 @@ public class MusicPacket {
         public void setUrl(String url) {
             this.url = url;
         }
+
+        public String getProxyUrl() {
+            return proxyUrl;
+        }
+
+        public void setProxyUrl(String proxyUrl) {
+            this.proxyUrl = proxyUrl;
+        }
     }
+
 }

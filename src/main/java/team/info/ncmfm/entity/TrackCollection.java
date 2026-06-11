@@ -1,10 +1,18 @@
 package team.info.ncmfm.entity;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class TrackCollection implements Serializable {
+    private int code;
     private PlayList playlist;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 
     public PlayList getPlaylist() {
         return playlist;
@@ -14,3 +22,4 @@ public class TrackCollection implements Serializable {
         this.playlist = playlist;
     }
 }
+

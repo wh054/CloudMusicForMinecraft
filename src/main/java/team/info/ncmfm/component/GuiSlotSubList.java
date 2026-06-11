@@ -4,14 +4,10 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import team.info.ncmfm.entity.AlbumTracks;
-import team.info.ncmfm.manager.NeteaseCloudMusicManager;
 import team.info.ncmfm.model.SubListContainer;
-import team.info.ncmfm.model.TrackContainer;
 import team.info.ncmfm.ui.MusicPannel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class GuiSlotSubList extends GuiScrollingList {
     private MusicPannel parent;
@@ -35,34 +31,10 @@ public class GuiSlotSubList extends GuiScrollingList {
         this.parent.selectSubListIndex(index);
         if(doubleClick){
             SubListContainer slc= collections.get(index);
-            List<TrackContainer> trackList= getTrackList(slc.getId());
-            this.parent.LoadTrackList(trackList);
+            this.parent.LoadTrackList(this.parent.getAlbumTracks(slc.getId()));
         }
     }
 
-    private ArrayList<TrackContainer> getTrackList(long id) {
-        ArrayList<TrackContainer> as=new ArrayList<>();
-        AlbumTracks albumTracks=null;
-
-        String collectionId=Long.toString(id);
-        if(NeteaseCloudMusicManager.cache.containsKey(collectionId)){
-            albumTracks=(AlbumTracks)NeteaseCloudMusicManager.cache.get(collectionId);
-        }else {
-            albumTracks=NeteaseCloudMusicManager.GetTracksBySubId(id);
-            NeteaseCloudMusicManager.cache.put(collectionId,albumTracks);
-        }
-        if(albumTracks!=null){
-            for(AlbumTracks.SongsBean temp: albumTracks.getSongs()){
-                as.add(new TrackContainer(
-                        temp.getId(),
-                        temp.getName(),
-                        temp.getAr().get(0).getName(),
-                        temp.getAl().getName()
-                ));
-            }
-        }
-        return as;
-    }
 
     @Override
     protected boolean isSelected(int index) {

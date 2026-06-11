@@ -5,7 +5,16 @@ import java.util.List;
 
 public class PlayListCollection implements Serializable {
 
+    private int code;
     private List<PlayList> playlist;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 
     public List<PlayList> getPlaylist() {
         return playlist;
@@ -15,3 +24,4 @@ public class PlayListCollection implements Serializable {
         this.playlist = playlist;
     }
 }
+
