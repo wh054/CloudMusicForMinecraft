@@ -7,6 +7,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import team.info.ncmfm.NcmConfig;
 import team.info.ncmfm.manager.MusicPlaybackManager;
+import team.info.ncmfm.model.TrackContainer;
 
 public class RenderGuiHandler {
 
@@ -16,12 +17,25 @@ public class RenderGuiHandler {
             return;
         }
 
-        if (!NcmConfig.showLyrics) {
+        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
+        if (!manager.isPlaying()) {
             return;
         }
 
-        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
-        if (!manager.isPlaying()) {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        // 1. Draw "Now Playing" text in the top-left corner
+        TrackContainer track = manager.getCurrentTrack();
+        if (track != null) {
+            String text = "正在播放: " + track.getName();
+            int textWidth = mc.fontRenderer.getStringWidth(text);
+            // Draw a clean dark background box for legibility (6px horizontal, 3px vertical padding)
+            Gui.drawRect(2, 5, 14 + textWidth, 18, 0x88000000);
+            mc.fontRenderer.drawStringWithShadow(text, 8, 8, 0xFFFFFF);
+        }
+
+        // 2. Draw lyrics centered at the top of the screen if enabled
+        if (!NcmConfig.showLyrics) {
             return;
         }
 
@@ -30,7 +44,6 @@ public class RenderGuiHandler {
             return;
         }
 
-        Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution scaled = event.getResolution();
         int width = scaled.getScaledWidth();
         int x = width / 2;
