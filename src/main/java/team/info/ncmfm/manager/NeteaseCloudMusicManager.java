@@ -243,7 +243,8 @@ public class NeteaseCloudMusicManager implements IMusicManager {
                         temp.getId(),
                         safeString(temp.getName()),
                         getPlaylistTrackArtist(temp),
-                        getPlaylistTrackAlbum(temp)
+                        getPlaylistTrackAlbum(temp),
+                        temp.getDt()
                 ));
             }
         }
@@ -268,7 +269,8 @@ public class NeteaseCloudMusicManager implements IMusicManager {
                         temp.getId(),
                         safeString(temp.getName()),
                         getAlbumTrackArtist(temp),
-                        getAlbumTrackAlbum(temp)
+                        getAlbumTrackAlbum(temp),
+                        temp.getDt()
                 ));
             }
         }
@@ -339,7 +341,8 @@ public class NeteaseCloudMusicManager implements IMusicManager {
                         song.getId(),
                         safeString(song.getName()),
                         getSearchTrackArtist(song),
-                        getSearchTrackAlbum(song)
+                        getSearchTrackAlbum(song),
+                        song.getDt()
                 ));
             }
         }
@@ -707,6 +710,18 @@ public class NeteaseCloudMusicManager implements IMusicManager {
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().length() == 0;
+    }
+
+    @Override
+    public String getLyricById(long id) {
+        ApiResult<team.info.ncmfm.entity.LyricResponse> result = get(team.info.ncmfm.entity.LyricResponse.class, "/lyric", Arrays.<NameValuePair>asList(
+                new BasicNameValuePair("id", Long.toString(id)),
+                new BasicNameValuePair("timestamp", Long.toString(System.currentTimeMillis()))
+        ));
+        if (result.body == null || result.body.getCode() != 200 || result.body.getLrc() == null) {
+            return null;
+        }
+        return result.body.getLrc().getLyric();
     }
 
     private static class ApiResult<T> {

@@ -124,6 +124,34 @@ src/main/resources/
 
 `NeteaseCloudMusicManager.cache` 是静态进程级缓存，用于 `userId`、Cookie、二维码 `unikey`、歌单、专辑和曲目。改登录、刷新或请求逻辑时，要同时考虑缓存状态和 Cookie header。
 
+### 内嵌 API 服务子进程
+
+`ApiServerManager` 管理 NeteaseCloudMusicApi Enhanced 的子进程生命周期。
+在 `ClientProxy.preInit()` 中启动，通过 JVM shutdown hook 在游戏退出时关闭。
+
+启动条件（全部满足才启动）：
+- `NcmConfig.autoStartApiServer` 为 `true`
+- `NcmConfig.host` 指向 localhost（`127.0.0.1` 或 `localhost`）
+- `{gameDir}/ncm-api/` 目录下有可用的 API 文件
+  *(注：根据用户要求，实际子进程目录通常为 `{gameDir}/ncm-api/api-enhanced/`，以下简称为 API 目录)*
+
+支持两种模式（按优先级）：
+1. 预编译二进制：API 目录下的 `app.exe`（通过 `pkg` 打包，无需 Node.js）
+2. Node.js 源码：API 目录下的 `app.js`（需系统安装 Node.js 18+）
+
+关键行为：
+- **依赖自愈安装**：若使用 Node.js 源码模式且 `node_modules` 文件夹不存在，程序会在启动阶段的守护线程中自动运行 `npm install`（或 `pnpm/yarn install`），安装日志实时转发到 `[ncm-api-install]`，成功后才启动 API，避免因缺失依赖导致 Connection Refused 崩溃
+- 通过 `PORT` 环境变量向子进程传递端口号（`NcmConfig.apiServerPort`）
+- 子进程的 stdout/stderr 通过守护线程转发到 Minecraft 的 log4j，日志前缀为 `[ncm-api]`
+- 启动后最多等 15 秒做健康检查（轮询 `http://127.0.0.1:{port}/`）
+- 关闭时先 `destroy()`，等 5 秒，超时则 `destroyForcibly()`
+- 如果 API 目录不存在或找不到可执行文件，只记录警告，不阻塞游戏启动
+
+修改子进程管理逻辑时，注意：
+- 不要在主线程做阻塞操作（启动和健康检查都在守护线程）
+- `ApiServerManager` 是客户端专用，不要在服务端代码中引用
+- 端口号和自启开关走 `NcmConfig`，不要硬编码
+
 ### 播放和网络同步
 
 `MusicPannel` 将 `MusicInfoWrapper` 序列化成 JSON，塞进 `MusicMessage` 发给服务端。服务端 `MusicMessageHandler` 再广播给所有客户端。客户端 `MusicMessageClientHandler` 根据命令执行：
@@ -164,5 +192,7 @@ src/main/resources/
 - 仅在背景音乐流播放时拦截原版音乐
 - Forge 配置中的 Cookie、API host 和码率能正确加载
 - 未登录时打开面板会跳转 `QrLoginScreen` 并显示二维码；手机扫码确认后自动进入 `MusicPannel`，Cookie 回写配置；过期二维码能自动刷新；日志无 `Invalid cookie header` 刷屏
+- 内嵌 API 服务：`ncm-api/` 目录放置 API 文件后，日志出现 `[ncm-api]` 开头的服务启动信息；`autoStartApiServer=false` 时不启动；目录不存在时只输出警告不崩溃
 
 如果 Gradle 因旧 ForgeGradle/JDK 兼容性失败，记录准确命令和失败信息，并先切换 Java 8 重试，不要直接改业务代码绕过构建问题。
+

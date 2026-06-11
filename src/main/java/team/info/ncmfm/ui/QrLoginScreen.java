@@ -33,8 +33,6 @@ public class QrLoginScreen extends GuiScreen {
     private static final int BUTTON_REFRESH = 0;
     private static final int BUTTON_BACK = 1;
 
-    private final int width;
-    private final int height;
     private final IMusicManager musicManager;
     private final BlockPos blockPos;
 
@@ -48,9 +46,6 @@ public class QrLoginScreen extends GuiScreen {
     private boolean switched = false;
 
     public QrLoginScreen(Minecraft mc, IMusicManager musicManager, BlockPos blockPos) {
-        ScaledResolution scaled = new ScaledResolution(mc);
-        this.width = scaled.getScaledWidth();
-        this.height = scaled.getScaledHeight();
         this.musicManager = musicManager;
         this.blockPos = blockPos;
     }

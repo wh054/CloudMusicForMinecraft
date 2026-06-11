@@ -48,4 +48,6 @@ public interface IMusicManager {
      * @Date: 2020/11/23 9:55
      */
     PersonalFM personalFm();
+
+    String getLyricById(long id);
 }

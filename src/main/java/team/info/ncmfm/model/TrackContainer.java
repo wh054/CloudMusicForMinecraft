@@ -5,6 +5,7 @@ public class TrackContainer {
     public String name;
     public String album;
     public String author;
+    public long durationMs;
 
     public  TrackContainer(long id, String name){
         this.id=id;
@@ -16,6 +17,14 @@ public class TrackContainer {
         this.name=name;
         this.album=album;
         this.author=author;
+    }
+
+    public TrackContainer(long id, String name, String author, String album, long durationMs){
+        this.id=id;
+        this.name=name;
+        this.album=album;
+        this.author=author;
+        this.durationMs=durationMs;
     }
 
     public long getId() {
@@ -50,4 +59,11 @@ public class TrackContainer {
         this.author = author;
     }
 
+    public long getDurationMs() {
+        return durationMs;
+    }
+
+    public void setDurationMs(long durationMs) {
+        this.durationMs = durationMs;
+    }
 }

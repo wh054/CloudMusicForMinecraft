@@ -39,6 +39,7 @@ public class SearchSongs {
         private String name;
         private List<Artist> artists;
         private Album album;
+        private long dt;
 
         public long getId() {
             return id;
@@ -70,6 +71,14 @@ public class SearchSongs {
 
         public void setAlbum(Album album) {
             this.album = album;
+        }
+
+        public long getDt() {
+            return dt;
+        }
+
+        public void setDt(long dt) {
+            this.dt = dt;
         }
     }
 

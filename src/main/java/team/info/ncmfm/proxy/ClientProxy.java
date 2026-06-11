@@ -17,6 +17,7 @@ import team.info.ncmfm.audio.CodecMonoMp3;
 import team.info.ncmfm.audio.CodecStereoMp3;
 import team.info.ncmfm.eventHandler.*;
 import team.info.ncmfm.interfaces.IProxy;
+import team.info.ncmfm.manager.ApiServerManager;
 import java.lang.reflect.Field;
 
 public class ClientProxy implements IProxy {
@@ -31,6 +32,7 @@ public class ClientProxy implements IProxy {
         MinecraftForge.EVENT_BUS.register(new RenderGuiHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerActionHandler());
         MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
+        MinecraftForge.EVENT_BUS.register(team.info.ncmfm.manager.MusicPlaybackManager.getInstance());
 
         try{
             SoundSystemConfig.setCodec("MonoMp3", CodecMonoMp3.class);
@@ -38,6 +40,9 @@ public class ClientProxy implements IProxy {
         }catch (SoundSystemException ex){
             logger.error(ex.getMessage());
         }
+
+        // 启动内嵌 API 服务子进程
+        ApiServerManager.start(Minecraft.getMinecraft().mcDataDir);
     }
     @Override
     public void init(FMLInitializationEvent event)
@@ -66,3 +71,4 @@ public class ClientProxy implements IProxy {
         }
     }
 }
+

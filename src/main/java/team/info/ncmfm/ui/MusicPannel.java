@@ -14,15 +14,11 @@ import org.lwjgl.input.Keyboard;
 import team.info.ncmfm.component.GuiSlotPlayList;
 import team.info.ncmfm.component.GuiSlotSubList;
 import team.info.ncmfm.component.GuiSlotTracks;
-import team.info.ncmfm.entity.PersonalFM;
 import team.info.ncmfm.interfaces.IMusicManager;
-import team.info.ncmfm.model.MusicInfoWrapper;
+import team.info.ncmfm.manager.MusicPlaybackManager;
 import team.info.ncmfm.model.PlayListContainer;
 import team.info.ncmfm.model.SubListContainer;
 import team.info.ncmfm.model.TrackContainer;
-import team.info.ncmfm.net.EnumMusicCommand;
-import team.info.ncmfm.net.MusicMessage;
-import team.info.ncmfm.net.MusicPacketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,8 +26,6 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class MusicPannel extends GuiScreen {
-    public final int width;
-    public final int height;
 
     private static final int BUTTON_STOP_MUSIC = 0;
     private static final int BUTTON_REFLASH_STATE = 1;
@@ -46,6 +40,9 @@ public class MusicPannel extends GuiScreen {
     private static final int BUTTON_NEXT = 17;
     private static final int BUTTON_CLOSE = 18;
     private static final int BUTTON_SEARCH = 19;
+    private static final int BUTTON_TOGGLE_MODE = 20;
+    private static final int BUTTON_VOLUME_TOGGLE = 21;
+    private static final int BUTTON_TOGGLE_LYRICS = 22;
 
     private static final int VIEW_PLAYLISTS = 0;
     private static final int VIEW_ALBUMS = 1;
@@ -67,7 +64,6 @@ public class MusicPannel extends GuiScreen {
     private int playList_selected_index = -1;
     private int subList_selected_index = -1;
     private int track_selected_index = -1;
-    private int queueIndex = -1;
     private int activeView = VIEW_PLAYLISTS;
 
     private int panelLeft;
@@ -85,12 +81,10 @@ public class MusicPannel extends GuiScreen {
     private String viewTitle = "My Playlists";
     private String statusMessage = "";
     private String activeSourceLabel = "Library";
-    private String currentSource = "Ready";
 
     private PlayListContainer selectedPlayList;
     private SubListContainer selectedSubList;
     private TrackContainer selectedTrack;
-    private TrackContainer currentTrack;
 
     private final IMusicManager musicManager;
     private BlockPos blockPos;
@@ -100,10 +94,7 @@ public class MusicPannel extends GuiScreen {
         trackList = new ArrayList<TrackContainer>();
         searchResults = new ArrayList<TrackContainer>();
         subList = new ArrayList<SubListContainer>();
-        queue = new ArrayList<TrackContainer>();
-        ScaledResolution scaled = new ScaledResolution(mc);
-        width = scaled.getScaledWidth();
-        height = scaled.getScaledHeight();
+        this.queue = (ArrayList<TrackContainer>) MusicPlaybackManager.getInstance().getQueue();
         this.musicManager = musicManager;
     }
 
@@ -112,10 +103,7 @@ public class MusicPannel extends GuiScreen {
         trackList = new ArrayList<TrackContainer>();
         searchResults = new ArrayList<TrackContainer>();
         subList = new ArrayList<SubListContainer>();
-        queue = new ArrayList<TrackContainer>();
-        ScaledResolution scaled = new ScaledResolution(mc);
-        width = scaled.getScaledWidth();
-        height = scaled.getScaledHeight();
+        this.queue = (ArrayList<TrackContainer>) MusicPlaybackManager.getInstance().getQueue();
         this.musicManager = musicManager;
         this.blockPos = pos;
     }
@@ -136,13 +124,13 @@ public class MusicPannel extends GuiScreen {
     }
 
     private void calculateLayout() {
-        panelWidth = Math.max(320, Math.min(width - 28, 460));
-        panelHeight = Math.max(230, Math.min(height - 24, 286));
+        panelWidth = Math.max(340, Math.min(width - 24, 460));
+        panelHeight = Math.max(240, Math.min(height - 20, 300));
         panelLeft = (width - panelWidth) / 2;
         panelTop = (height - panelHeight) / 2;
         sidebarWidth = 94;
         headerHeight = 30;
-        playerHeight = 54;
+        playerHeight = 62;
         contentLeft = panelLeft + sidebarWidth + 8;
         contentTop = panelTop + headerHeight + 8;
         contentWidth = panelWidth - sidebarWidth - 18;
@@ -155,24 +143,34 @@ public class MusicPannel extends GuiScreen {
         int navLeft = panelLeft + 8;
         int navTop = panelTop + headerHeight + 8;
         int navWidth = sidebarWidth - 16;
-        buttonList.add(new GuiButton(BUTTON_NAV_PLAYLISTS, navLeft, navTop, navWidth, 18, "Playlists"));
-        buttonList.add(new GuiButton(BUTTON_NAV_ALBUMS, navLeft, navTop + 22, navWidth, 18, "Albums"));
-        buttonList.add(new GuiButton(BUTTON_NAV_SEARCH, navLeft, navTop + 44, navWidth, 18, "Search"));
-        buttonList.add(new GuiButton(BUTTON_PERSONAL_FM, navLeft, navTop + 66, navWidth, 18, "Private FM"));
-        buttonList.add(new GuiButton(BUTTON_NAV_QUEUE, navLeft, navTop + 88, navWidth, 18, "Queue"));
+        buttonList.add(new GuiModernButton(BUTTON_NAV_PLAYLISTS, navLeft, navTop, navWidth, 18, "歌单列表"));
+        buttonList.add(new GuiModernButton(BUTTON_NAV_ALBUMS, navLeft, navTop + 22, navWidth, 18, "收藏专辑"));
+        buttonList.add(new GuiModernButton(BUTTON_NAV_SEARCH, navLeft, navTop + 44, navWidth, 18, "音乐搜索"));
+        buttonList.add(new GuiModernButton(BUTTON_PERSONAL_FM, navLeft, navTop + 66, navWidth, 18, "私人 FM"));
+        buttonList.add(new GuiModernButton(BUTTON_NAV_QUEUE, navLeft, navTop + 88, navWidth, 18, "播放队列"));
 
-        buttonList.add(new GuiButton(BUTTON_REFLASH_STATE, panelLeft + panelWidth - 112, panelTop + 6, 52, 18, "Refresh"));
-        buttonList.add(new GuiButton(BUTTON_CLOSE, panelLeft + panelWidth - 56, panelTop + 6, 46, 18, "Close"));
+        buttonList.add(new GuiModernButton(BUTTON_REFLASH_STATE, panelLeft + panelWidth - 112, panelTop + 6, 52, 18, "刷新"));
+        buttonList.add(new GuiModernButton(BUTTON_CLOSE, panelLeft + panelWidth - 56, panelTop + 6, 46, 18, "关闭"));
 
-        buttonList.add(new GuiButton(BUTTON_SEARCH, contentLeft + contentWidth - 58, contentTop, 58, 18, "Search"));
-        buttonList.add(new GuiButton(BUTTON_ADD_QUEUE, contentLeft + contentWidth - 58, contentTop, 58, 18, "+Queue"));
+        buttonList.add(new GuiModernButton(BUTTON_SEARCH, contentLeft + contentWidth - 58, contentTop, 58, 18, "搜索"));
+        buttonList.add(new GuiModernButton(BUTTON_ADD_QUEUE, contentLeft + contentWidth - 58, contentTop, 58, 18, "+队列"));
 
-        int controlsY = panelTop + panelHeight - 42;
+        int playerTop = panelTop + panelHeight - playerHeight;
         int controlsRight = panelLeft + panelWidth - 10;
-        buttonList.add(new GuiButton(BUTTON_PREVIOUS, controlsRight - 180, controlsY, 42, 20, "Prev"));
-        buttonList.add(new GuiButton(BUTTON_PLAY_SELECTED, controlsRight - 134, controlsY, 42, 20, "Play"));
-        buttonList.add(new GuiButton(BUTTON_NEXT, controlsRight - 88, controlsY, 36, 20, "Next"));
-        buttonList.add(new GuiButton(BUTTON_STOP_MUSIC, controlsRight - 48, controlsY, 38, 20, "Stop"));
+
+        // Row 1 of Player Controls (146px width total)
+        buttonList.add(new GuiModernButton(BUTTON_PREVIOUS, controlsRight - 146, playerTop + 12, 32, 18, "上首"));
+        buttonList.add(new GuiModernButton(BUTTON_PLAY_SELECTED, controlsRight - 112, playerTop + 12, 34, 18, "播放"));
+        buttonList.add(new GuiModernButton(BUTTON_NEXT, controlsRight - 76, playerTop + 12, 32, 18, "下首"));
+        buttonList.add(new GuiModernButton(BUTTON_STOP_MUSIC, controlsRight - 42, playerTop + 12, 42, 18, "停止"));
+
+        // Row 2 of Player Controls (46px each, aligned perfectly)
+        String modeText = getModeShortText(MusicPlaybackManager.getInstance().getPlayMode());
+        String volText = "V:" + Math.round(MusicPlaybackManager.getInstance().getVolume() * 100) + "%";
+        String lyricText = team.info.ncmfm.NcmConfig.showLyrics ? "词:开" : "词:关";
+        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_MODE, controlsRight - 146, playerTop + 34, 46, 18, modeText));
+        buttonList.add(new GuiModernButton(BUTTON_VOLUME_TOGGLE, controlsRight - 96, playerTop + 34, 46, 18, volText));
+        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_LYRICS, controlsRight - 46, playerTop + 34, 46, 18, lyricText));
 
         searchField = new GuiTextField(0, fontRenderer, contentLeft, contentTop, Math.max(80, contentWidth - 64), 18);
         searchField.setMaxStringLength(64);
@@ -197,9 +195,7 @@ public class MusicPannel extends GuiScreen {
         subList_selected_index = -1;
         selectedPlayList = null;
         selectedSubList = null;
-        if (statusMessage.length() == 0) {
-            statusMessage = "Library loaded";
-        }
+        statusMessage = MusicPlaybackManager.getInstance().getStatusMessage();
     }
 
     @Override
@@ -217,15 +213,20 @@ public class MusicPannel extends GuiScreen {
     }
 
     private void drawPanel() {
-        drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, 0xDD101820);
-        drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelTop + headerHeight, 0xEE18202A);
-        drawRect(panelLeft, panelTop + headerHeight, panelLeft + sidebarWidth, panelTop + panelHeight - playerHeight, 0xAA121923);
-        drawRect(panelLeft, panelTop + panelHeight - playerHeight, panelLeft + panelWidth, panelTop + panelHeight, 0xEE18202A);
-        drawRect(contentLeft - 4, contentTop - 4, contentLeft + contentWidth + 4, contentTop + contentHeight + 4, 0x66101820);
+        // Main panel background (sleek dark mode)
+        drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, 0xEE11161B);
+        // Header bar
+        drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelTop + headerHeight, 0xFF1C2229);
+        // Sidebar background
+        drawRect(panelLeft, panelTop + headerHeight, panelLeft + sidebarWidth, panelTop + panelHeight - playerHeight, 0xEE151A20);
+        // Player bottom bar background
+        drawRect(panelLeft, panelTop + panelHeight - playerHeight, panelLeft + panelWidth, panelTop + panelHeight, 0xFF1C2229);
+        // Main list container background border
+        drawRect(contentLeft - 4, contentTop - 4, contentLeft + contentWidth + 4, contentTop + contentHeight + 4, 0x22FFFFFF);
 
-        drawString(fontRenderer, "NetEase Cloud Music", panelLeft + 10, panelTop + 10, 0xFFFFFF);
-        drawString(fontRenderer, fontRenderer.trimStringToWidth(viewTitle, contentWidth - 118), contentLeft, panelTop + 10, 0xFFFFFF);
-        drawString(fontRenderer, blockPos == null ? "Background" : "Block Source", panelLeft + 10, panelTop + panelHeight - 14, 0x888888);
+        drawString(fontRenderer, "网易云音乐", panelLeft + 10, panelTop + 10, 0xFF5555);
+        drawString(fontRenderer, fontRenderer.trimStringToWidth(viewTitle, contentWidth - 118), contentLeft, panelTop + 10, 0xEAEAEA);
+        drawString(fontRenderer, blockPos == null ? "立体声播放" : "3D位置播放", panelLeft + 10, panelTop + panelHeight - 14, 0x777777);
         drawSelectedNavigation();
     }
 
@@ -241,7 +242,8 @@ public class MusicPannel extends GuiScreen {
             selectedY = panelTop + headerHeight + 96;
         }
         if (selectedY >= 0) {
-            drawRect(panelLeft + 5, selectedY - 2, panelLeft + sidebarWidth - 5, selectedY + 20, 0x55345678);
+            // Sleek left-side border indicator for active navigation tab
+            drawRect(panelLeft, selectedY - 2, panelLeft + 3, selectedY + 20, 0xFFE54343);
         }
     }
 
@@ -256,28 +258,75 @@ public class MusicPannel extends GuiScreen {
     }
 
     private void drawContentStatus() {
-        String message = statusMessage;
+        String message = MusicPlaybackManager.getInstance().getStatusMessage();
         if (activeView == VIEW_PLAYLISTS && playList.isEmpty()) {
-            message = "No playlists loaded";
+            message = "无可用歌单";
         } else if (activeView == VIEW_ALBUMS && subList.isEmpty()) {
-            message = "No albums loaded";
+            message = "无收藏专辑";
         } else if ((activeView == VIEW_TRACKS || activeView == VIEW_SEARCH || activeView == VIEW_QUEUE) && trackList.isEmpty()) {
-            message = statusMessage.length() == 0 ? "No tracks found" : statusMessage;
+            message = message.trim().length() == 0 ? "列表无歌曲" : message;
         }
 
-        if (message.length() > 0) {
+        if (message != null && message.length() > 0) {
             int y = activeView == VIEW_SEARCH ? contentTop + 22 : contentTop;
-            drawString(fontRenderer, fontRenderer.trimStringToWidth(message, contentWidth - 8), contentLeft, y, 0xAAAAAA);
+            drawString(fontRenderer, fontRenderer.trimStringToWidth(message, contentWidth - 8), contentLeft, y, 0x888888);
         }
     }
 
     private void drawPlayerBar() {
+        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
         int playerTop = panelTop + panelHeight - playerHeight;
-        String title = currentTrack == null ? "No track playing" : safeText(currentTrack.getName());
-        String meta = currentTrack == null ? currentSource : trackMeta(currentTrack);
-        int textWidth = Math.max(80, panelWidth - 205);
+
+        // Render progress bar
+        drawProgressBar(panelLeft + 10, playerTop + 4, panelWidth - 20);
+
+        TrackContainer track = manager.getCurrentTrack();
+        String title = track == null ? "暂无播放曲目" : safeText(track.getName());
+        String author = track == null ? "Ready" : safeText(track.getAuthor());
+
+        // Get progress time
+        long elapsedSec = manager.getProgressTicks() / 20;
+        long totalSec = (track != null && track.getDurationMs() > 0) ? track.getDurationMs() / 1000 : -1;
+        String timeStr = formatTime(elapsedSec) + " / " + formatTime(totalSec);
+
+        String meta = author + "  [" + timeStr + "]";
+        int textWidth = Math.max(80, panelWidth - 170);
+
         drawString(fontRenderer, fontRenderer.trimStringToWidth(title, textWidth), panelLeft + 10, playerTop + 12, 0xFFFFFF);
-        drawString(fontRenderer, fontRenderer.trimStringToWidth(meta, textWidth), panelLeft + 10, playerTop + 28, 0xAAAAAA);
+        drawString(fontRenderer, fontRenderer.trimStringToWidth(meta, textWidth), panelLeft + 10, playerTop + 28, 0x888888);
+    }
+
+    private void drawProgressBar(int x, int y, int barWidth) {
+        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
+        TrackContainer track = manager.getCurrentTrack();
+
+        long elapsedSec = manager.getProgressTicks() / 20;
+        long totalSec = -1;
+        float progress = 0.0f;
+
+        if (track != null && track.getDurationMs() > 0) {
+            totalSec = track.getDurationMs() / 1000;
+            if (totalSec > 0) {
+                progress = (float) elapsedSec / totalSec;
+                progress = Math.max(0.0f, Math.min(1.0f, progress));
+            }
+        }
+
+        // Draw progress background bar (Lighter grey for visibility)
+        drawRect(x, y, x + barWidth, y + 3, 0xFF555555);
+
+        // Draw filled progress bar (NetEase red)
+        if (progress > 0.0f) {
+            int fillWidth = (int) (barWidth * progress);
+            drawRect(x, y, x + fillWidth, y + 3, 0xFFEF4444);
+        }
+    }
+
+    private String formatTime(long seconds) {
+        if (seconds < 0) return "--:--";
+        long m = seconds / 60;
+        long s = seconds % 60;
+        return String.format("%02d:%02d", m, s);
     }
 
     private void updateButtonVisibility() {
@@ -301,6 +350,7 @@ public class MusicPannel extends GuiScreen {
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
+        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
         switch (button.id) {
             case BUTTON_REFLASH_STATE:
                 musicManager.updateLoginState();
@@ -313,10 +363,12 @@ public class MusicPannel extends GuiScreen {
                 switchView(activeView);
                 break;
             case BUTTON_STOP_MUSIC:
-                StopMusic();
+                manager.stop();
                 break;
             case BUTTON_PERSONAL_FM:
-                playPersonalFm();
+                manager.playPersonalFm();
+                switchView(VIEW_QUEUE); // Redirect to queue view to show active playback
+                viewTitle = "私人 FM";
                 break;
             case BUTTON_NAV_PLAYLISTS:
                 switchView(VIEW_PLAYLISTS);
@@ -337,13 +389,36 @@ public class MusicPannel extends GuiScreen {
                 addSelectedToQueue();
                 break;
             case BUTTON_PREVIOUS:
-                playPrevious();
+                manager.previous();
                 break;
             case BUTTON_PLAY_SELECTED:
                 PlayMusic();
                 break;
             case BUTTON_NEXT:
-                playNext();
+                manager.next();
+                break;
+            case BUTTON_TOGGLE_MODE:
+                manager.togglePlayMode();
+                button.displayString = getModeShortText(manager.getPlayMode());
+                break;
+            case BUTTON_VOLUME_TOGGLE:
+                float currentVol = manager.getVolume();
+                float nextVol;
+                if (currentVol < 0.1f) nextVol = 0.20f;
+                else if (currentVol < 0.3f) nextVol = 0.40f;
+                else if (currentVol < 0.5f) nextVol = 0.60f;
+                else if (currentVol < 0.7f) nextVol = 0.80f;
+                else if (currentVol < 0.9f) nextVol = 1.00f;
+                else nextVol = 0.00f;
+                manager.changeVolume(nextVol - currentVol);
+                button.displayString = "V:" + Math.round(nextVol * 100) + "%";
+                break;
+            case BUTTON_TOGGLE_LYRICS:
+                team.info.ncmfm.NcmConfig.showLyrics = !team.info.ncmfm.NcmConfig.showLyrics;
+                try {
+                    net.minecraftforge.common.config.ConfigManager.sync(team.info.ncmfm.NcmMod.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE);
+                } catch (Exception e) {}
+                button.displayString = team.info.ncmfm.NcmConfig.showLyrics ? "词:开" : "词:关";
                 break;
             case BUTTON_CLOSE:
                 mc.displayGuiScreen(null);
@@ -404,7 +479,7 @@ public class MusicPannel extends GuiScreen {
         this.track_selected_index = index;
         this.selectedTrack = (index >= 0 && index < trackList.size()) ? trackList.get(track_selected_index) : null;
         if (activeView == VIEW_QUEUE && index >= 0 && index < queue.size()) {
-            queueIndex = index;
+            MusicPlaybackManager.getInstance().setQueueIndex(index);
         }
     }
 
@@ -431,22 +506,22 @@ public class MusicPannel extends GuiScreen {
 
     public void openPlayList(PlayListContainer container) {
         if (container == null) {
-            statusMessage = "Select a playlist first";
+            MusicPlaybackManager.getInstance().setStatusMessage("请先选择一个歌单");
             return;
         }
         selectedPlayList = container;
-        activeSourceLabel = "Playlist: " + safeText(container.getName());
-        showTracks(activeSourceLabel, getPlayListTracks(container.getId()), "No tracks found");
+        activeSourceLabel = "歌单: " + safeText(container.getName());
+        showTracks(activeSourceLabel, getPlayListTracks(container.getId()), "列表为空");
     }
 
     public void openAlbum(SubListContainer container) {
         if (container == null) {
-            statusMessage = "Select an album first";
+            MusicPlaybackManager.getInstance().setStatusMessage("请先选择一个专辑");
             return;
         }
         selectedSubList = container;
-        activeSourceLabel = "Album: " + safeText(container.getName());
-        showTracks(activeSourceLabel, getAlbumTracks(container.getId()), "No tracks found");
+        activeSourceLabel = "专辑: " + safeText(container.getName());
+        showTracks(activeSourceLabel, getAlbumTracks(container.getId()), "列表为空");
     }
 
     public ArrayList<TrackContainer> getPlayListTracks(long id) {
@@ -458,42 +533,41 @@ public class MusicPannel extends GuiScreen {
     }
 
     public void PlayMusic() {
-        if (this.selectedTrack == null) {
-            statusMessage = "Select a song first";
-            return;
-        }
-        MusicInfoWrapper packet = new MusicInfoWrapper();
-        packet.setCommand(EnumMusicCommand.PLAY);
-        try {
-            String musicUrl = musicManager.GetMusicById(this.selectedTrack.getId());
-            if (isBlank(musicUrl)) {
-                statusMessage = "Play failed: no stream url";
-                return;
-            }
-            packet.setSource(musicUrl);
+        MusicPlaybackManager manager = MusicPlaybackManager.getInstance();
+        manager.setBlockPos(blockPos);
 
-            if (blockPos != null) {
-                packet.setPos(this.blockPos);
+        if (this.selectedTrack != null) {
+            if (activeView != VIEW_QUEUE) {
+                manager.getQueue().clear();
+                manager.getQueue().addAll(this.trackList);
+                manager.setFmMode(false);
             }
-            currentTrack = selectedTrack;
-            currentSource = activeSourceLabel;
-            statusMessage = "Playing: " + safeText(this.selectedTrack.getName());
-            syncQueueIndexForSelected();
-            MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
-        } catch (Exception e) {
-            statusMessage = "Play failed: " + e.getMessage();
-        }
-    }
 
-    public void StopMusic() {
-        MusicInfoWrapper packet = new MusicInfoWrapper();
-        packet.setCommand(EnumMusicCommand.STOP);
-        if (this.blockPos != null) {
-            packet.setPos(this.blockPos);
+            int idx = -1;
+            for (int i = 0; i < manager.getQueue().size(); i++) {
+                if (manager.getQueue().get(i).getId() == this.selectedTrack.getId()) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= 0) {
+                manager.setQueueIndex(idx);
+            } else {
+                manager.getQueue().add(this.selectedTrack);
+                manager.setQueueIndex(manager.getQueue().size() - 1);
+            }
+
+            manager.play(selectedTrack);
+        } else {
+            if (manager.getCurrentTrack() != null) {
+                manager.play(manager.getCurrentTrack());
+            } else if (!manager.getQueue().isEmpty()) {
+                manager.setQueueIndex(0);
+                manager.play(manager.getQueue().get(0));
+            } else {
+                MusicPlaybackManager.getInstance().setStatusMessage("请先选择一首歌");
+            }
         }
-        statusMessage = "Playback stopped";
-        currentSource = "Stopped";
-        MusicPacketHandler.INSTANCE.sendToServer(new MusicMessage(new Gson().toJson(packet)));
     }
 
     private void switchView(int view) {
@@ -502,23 +576,23 @@ public class MusicPannel extends GuiScreen {
             searchField.setFocused(view == VIEW_SEARCH);
         }
         if (view == VIEW_PLAYLISTS) {
-            viewTitle = "My Playlists";
+            viewTitle = "我的歌单";
             activeSourceLabel = "Library";
-            statusMessage = playList.isEmpty() ? "No playlists loaded" : "Double-click a playlist";
+            MusicPlaybackManager.getInstance().setStatusMessage(playList.isEmpty() ? "无可用歌单" : "双击打开歌单");
         } else if (view == VIEW_ALBUMS) {
-            viewTitle = "Subscribed Albums";
+            viewTitle = "收藏的专辑";
             activeSourceLabel = "Albums";
-            statusMessage = subList.isEmpty() ? "No albums loaded" : "Double-click an album";
+            MusicPlaybackManager.getInstance().setStatusMessage(subList.isEmpty() ? "无收藏专辑" : "双击打开专辑");
         } else if (view == VIEW_SEARCH) {
-            viewTitle = "Search";
+            viewTitle = "音乐搜索";
             activeSourceLabel = "Search";
             LoadTrackList(searchResults);
-            statusMessage = searchResults.isEmpty() ? "Type keywords and press Search" : "Double-click a song";
+            MusicPlaybackManager.getInstance().setStatusMessage(searchResults.isEmpty() ? "输入关键词并回车搜索" : "双击播放，或加至队列");
         } else if (view == VIEW_QUEUE) {
-            viewTitle = "Queue";
+            viewTitle = "播放队列";
             activeSourceLabel = "Queue";
             LoadTrackList(queue);
-            statusMessage = queue.isEmpty() ? "Queue is empty" : "Double-click a queued track";
+            MusicPlaybackManager.getInstance().setStatusMessage(queue.isEmpty() ? "播放队列为空" : "双击播放队列中的歌曲");
         }
     }
 
@@ -526,7 +600,7 @@ public class MusicPannel extends GuiScreen {
         viewTitle = title;
         activeView = VIEW_TRACKS;
         LoadTrackList(tracks);
-        statusMessage = trackList.isEmpty() ? emptyText : "Double-click a song, or add it to queue";
+        MusicPlaybackManager.getInstance().setStatusMessage(trackList.isEmpty() ? emptyText : "双击播放，或加至队列");
         if (searchField != null) {
             searchField.setFocused(false);
         }
@@ -535,16 +609,16 @@ public class MusicPannel extends GuiScreen {
     private void runSearch() {
         String keywords = searchField == null ? "" : searchField.getText();
         if (isBlank(keywords)) {
-            statusMessage = "Type keywords and press Search";
+            MusicPlaybackManager.getInstance().setStatusMessage("请输入搜索词");
             return;
         }
-        activeSourceLabel = "Search: " + keywords.trim();
+        activeSourceLabel = "搜索: " + keywords.trim();
         viewTitle = activeSourceLabel;
         searchResults.clear();
         searchResults.addAll(musicManager.SearchSongs(keywords));
         LoadTrackList(searchResults);
         activeView = VIEW_SEARCH;
-        statusMessage = trackList.isEmpty() ? "No tracks found" : "Double-click a song, or add it to queue";
+        MusicPlaybackManager.getInstance().setStatusMessage(trackList.isEmpty() ? "未搜到相关歌曲" : "双击播放，或加至队列");
         if (searchField != null) {
             searchField.setFocused(true);
         }
@@ -552,75 +626,11 @@ public class MusicPannel extends GuiScreen {
 
     private void addSelectedToQueue() {
         if (selectedTrack == null) {
-            statusMessage = "Select a song first";
+            MusicPlaybackManager.getInstance().setStatusMessage("请先选择一首歌");
             return;
         }
-        queue.add(selectedTrack);
-        if (queueIndex < 0) {
-            queueIndex = 0;
-        }
-        statusMessage = "Added to queue: " + safeText(selectedTrack.getName());
-    }
-
-    private void playNext() {
-        if (queue.isEmpty()) {
-            statusMessage = "Queue is empty";
-            return;
-        }
-        queueIndex = queueIndex < 0 ? 0 : (queueIndex + 1) % queue.size();
-        selectedTrack = queue.get(queueIndex);
-        activeSourceLabel = "Queue";
-        PlayMusic();
-    }
-
-    private void playPrevious() {
-        if (queue.isEmpty()) {
-            statusMessage = "Queue is empty";
-            return;
-        }
-        queueIndex = queueIndex <= 0 ? queue.size() - 1 : queueIndex - 1;
-        selectedTrack = queue.get(queueIndex);
-        activeSourceLabel = "Queue";
-        PlayMusic();
-    }
-
-    private void playPersonalFm() {
-        PersonalFM pm = musicManager.personalFm();
-        if (pm == null || pm.getData() == null || pm.getData().isEmpty() || pm.getData().get(0) == null) {
-            statusMessage = "Private FM load failed";
-            return;
-        }
-        PersonalFM.DataBean data = pm.getData().get(0);
-        selectedTrack = new TrackContainer(data.getId(), data.getName());
-        activeSourceLabel = "Private FM";
-        PlayMusic();
-    }
-
-    private void syncQueueIndexForSelected() {
-        if (selectedTrack == null) {
-            return;
-        }
-        for (int i = 0; i < queue.size(); i++) {
-            if (queue.get(i) != null && queue.get(i).getId() == selectedTrack.getId()) {
-                queueIndex = i;
-                return;
-            }
-        }
-    }
-
-    private String trackMeta(TrackContainer track) {
-        String artist = safeText(track.getAuthor());
-        String album = safeText(track.getAlbum());
-        if (artist.length() == 0 && album.length() == 0) {
-            return currentSource;
-        }
-        if (artist.length() == 0) {
-            return album;
-        }
-        if (album.length() == 0) {
-            return artist;
-        }
-        return artist + " - " + album;
+        MusicPlaybackManager.getInstance().getQueue().add(selectedTrack);
+        MusicPlaybackManager.getInstance().setStatusMessage("已加至播放队列: " + safeText(selectedTrack.getName()));
     }
 
     private String safeText(String value) {
@@ -637,6 +647,16 @@ public class MusicPannel extends GuiScreen {
             }
         }
         return true;
+    }
+
+    private String getModeShortText(MusicPlaybackManager.PlayMode mode) {
+        switch (mode) {
+            case SEQUENCE: return "顺序";
+            case LIST_LOOP: return "循环";
+            case SINGLE_LOOP: return "单曲";
+            case SHUFFLE: return "随机";
+            default: return "循环";
+        }
     }
 
     @Override

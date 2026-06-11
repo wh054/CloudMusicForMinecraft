@@ -55,6 +55,7 @@ public class PlayList implements Serializable {
         private String name;
         private List<Author> ar;
         private Album al;
+        private long dt;
 
         public List<Author> getAr() {
             return ar;
@@ -86,6 +87,14 @@ public class PlayList implements Serializable {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public long getDt() {
+            return dt;
+        }
+
+        public void setDt(long dt) {
+            this.dt = dt;
         }
 
 
