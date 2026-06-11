@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.197'
     }
 }
 
@@ -26,6 +26,10 @@ group = 'team.info.ncmfm' // http://maven.apache.org/guides/mini/guide-naming-co
 archivesBaseName = 'NcmMod'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -63,6 +67,13 @@ minecraft {
     }
 }
 
+configurations {
+    forgeSidePatch
+    runtimeClasspath {
+        exclude group: 'net.minecraftforge', module: 'mergetool'
+    }
+}
+
 dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
@@ -90,7 +101,105 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    forgeSidePatch('net.minecraftforge:mergetool:0.2.3.3:forge') {
+        transitive = false
+    }
 }
+
+task patchForgeSideEnum {
+    def forgeVersion = '1.12.2-14.23.5.2854'
+    def mappedVersion = "${forgeVersion}_mapped_snapshot_20171003-1.12"
+    def sideEntries = [
+            'net/minecraftforge/fml/relauncher/Side.class',
+            'net/minecraftforge/fml/relauncher/SideOnly.class'
+    ]
+
+    doLast {
+        File patchJar = configurations.forgeSidePatch.files.find { it.name == 'mergetool-0.2.3.3-forge.jar' }
+        if (patchJar == null) {
+            throw new GradleException('Could not resolve mergetool-0.2.3.3-forge.jar for Forge side enum patching.')
+        }
+
+        Map<String, byte[]> replacements = [:]
+        new java.util.zip.ZipFile(patchJar).withCloseable { zip ->
+            sideEntries.each { path ->
+                def entry = zip.getEntry(path)
+                if (entry == null) {
+                    throw new GradleException("Patch jar is missing ${path}.")
+                }
+                replacements[path] = zip.getInputStream(entry).bytes
+            }
+        }
+
+        File forgeRepo = new File(gradle.gradleUserHomeDir, 'caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge')
+        [
+                new File(forgeRepo, "${forgeVersion}/forge-${forgeVersion}-obf.jar"),
+                new File(forgeRepo, "${forgeVersion}/forge-${forgeVersion}-srg.jar"),
+                new File(forgeRepo, "${forgeVersion}/forge-${forgeVersion}-mci.jar"),
+                new File(forgeRepo, "${forgeVersion}/forge-${forgeVersion}-injected.jar"),
+                new File(forgeRepo, "${mappedVersion}/forge-${mappedVersion}.jar")
+        ].findAll { it.isFile() }.each { jarFile ->
+            patchJarEntries(jarFile, replacements)
+            logger.lifecycle("Patched Forge side enum in ${jarFile}")
+        }
+    }
+}
+
+void patchJarEntries(File jarFile, Map<String, byte[]> replacements) {
+    File tempFile = new File(jarFile.parentFile, "${jarFile.name}.tmp")
+    Set<String> seen = new LinkedHashSet<>()
+
+    new java.util.zip.ZipFile(jarFile).withCloseable { zip ->
+        new java.util.zip.ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile))).withCloseable { output ->
+            zip.entries().each { entry ->
+                if (!seen.add(entry.name)) {
+                    return
+                }
+
+                def nextEntry = new java.util.zip.ZipEntry(entry.name)
+                nextEntry.time = entry.time
+                output.putNextEntry(nextEntry)
+                byte[] replacement = replacements[entry.name]
+                if (replacement != null) {
+                    output.write(replacement)
+                } else if (!entry.directory) {
+                    zip.getInputStream(entry).withCloseable { input ->
+                        byte[] buffer = new byte[8192]
+                        int read
+                        while ((read = input.read(buffer)) != -1) {
+                            output.write(buffer, 0, read)
+                        }
+                    }
+                }
+                output.closeEntry()
+            }
+
+            replacements.each { name, bytes ->
+                if (!seen.contains(name)) {
+                    output.putNextEntry(new java.util.zip.ZipEntry(name))
+                    output.write(bytes)
+                    output.closeEntry()
+                }
+            }
+        }
+    }
+
+    java.nio.file.Files.move(
+            tempFile.toPath(),
+            jarFile.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING
+    )
+}
+
+tasks.matching { it.name in ['prepareRunClient', 'prepareRunServer'] }.all {
+    patchForgeSideEnum.mustRunAfter it
+}
+
+tasks.matching { it.name in ['runClient', 'runServer'] }.all {
+    dependsOn patchForgeSideEnum
+}
+
+build.finalizedBy patchForgeSideEnum
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
