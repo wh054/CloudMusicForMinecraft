@@ -17,6 +17,8 @@ public interface IMusicManager {
 
     ArrayList<SubListContainer> LoadSubList();
 
+    ArrayList<TrackContainer> SearchSongs(String keywords);
+
     String GetMusicById(long id);
 
     void updateLoginState();

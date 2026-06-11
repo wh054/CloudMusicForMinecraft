@@ -312,6 +312,41 @@ public class NeteaseCloudMusicManager implements IMusicManager {
      * @Date: 2020/11/23 9:42
      */
     @Override
+    public ArrayList<TrackContainer> SearchSongs(String keywords) {
+        if (getCachedUserId() == null || isBlank(keywords)) {
+            return new ArrayList<TrackContainer>();
+        }
+
+        ApiResult<SearchSongs> result = get(SearchSongs.class, "/search", Arrays.<NameValuePair>asList(
+                new BasicNameValuePair("keywords", keywords.trim()),
+                new BasicNameValuePair("type", "1"),
+                new BasicNameValuePair("limit", "50"),
+                new BasicNameValuePair("offset", "0"),
+                new BasicNameValuePair("timestamp", Long.toString(System.currentTimeMillis()))
+        ));
+        return toSearchTrackContainers(result.body);
+    }
+
+    static ArrayList<TrackContainer> toSearchTrackContainers(SearchSongs response) {
+        ArrayList<TrackContainer> tracks = new ArrayList<TrackContainer>();
+        if (response == null || response.getCode() != 200 || response.getResult() == null || response.getResult().getSongs() == null) {
+            return tracks;
+        }
+
+        for (SearchSongs.Song song : response.getResult().getSongs()) {
+            if (song != null) {
+                tracks.add(new TrackContainer(
+                        song.getId(),
+                        safeString(song.getName()),
+                        getSearchTrackArtist(song),
+                        getSearchTrackAlbum(song)
+                ));
+            }
+        }
+        return tracks;
+    }
+
+    @Override
     public String GetMusicById(long id) {
         ApiResult<MusicPacket> result = get(MusicPacket.class, "/song/url/v1", Arrays.<NameValuePair>asList(
                 new BasicNameValuePair("id", Long.toString(id)),
@@ -581,6 +616,20 @@ public class NeteaseCloudMusicManager implements IMusicManager {
             return "";
         }
         return safeString(track.getAl().getName());
+    }
+
+    private static String getSearchTrackArtist(SearchSongs.Song track) {
+        if (track.getArtists() == null || track.getArtists().isEmpty() || track.getArtists().get(0) == null) {
+            return "";
+        }
+        return safeString(track.getArtists().get(0).getName());
+    }
+
+    private static String getSearchTrackAlbum(SearchSongs.Song track) {
+        if (track.getAlbum() == null) {
+            return "";
+        }
+        return safeString(track.getAlbum().getName());
     }
 
     private static String getSongLevel() {
