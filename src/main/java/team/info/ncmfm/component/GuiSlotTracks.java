@@ -3,10 +3,7 @@ package team.info.ncmfm.component;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.StringUtils;
-import net.minecraftforge.fml.client.GuiModList;
 import net.minecraftforge.fml.client.GuiScrollingList;
-import net.minecraftforge.fml.common.ModContainer;
-import team.info.ncmfm.model.PlayListContainer;
 import team.info.ncmfm.model.TrackContainer;
 import team.info.ncmfm.ui.MusicPannel;
 
@@ -18,9 +15,9 @@ public class GuiSlotTracks extends GuiScrollingList {
     private ArrayList<TrackContainer> collections;
     private int slotHeight;
 
-    public GuiSlotTracks(MusicPannel parent, ArrayList<TrackContainer> trackList, int slotHeight)
+    public GuiSlotTracks(MusicPannel parent, ArrayList<TrackContainer> trackList, int left, int top, int width, int height, int slotHeight)
     {
-        super(parent.getMinecraftInstance(), (parent.width/3)*2-30, parent.height, 8, parent.height-50, parent.width/3+20, slotHeight, parent.width, parent.height);
+        super(parent.getMinecraftInstance(), width, parent.height, top, top + height, left, slotHeight, parent.width, parent.height);
         this.parent = parent;
         this.collections=trackList;
         this.slotHeight=slotHeight;
@@ -57,10 +54,16 @@ public class GuiSlotTracks extends GuiScrollingList {
 
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-        TrackContainer tc     = this.collections.get(slotIdx);
-        String       name     = StringUtils.stripControlCodes(tc.getName());
-        FontRenderer font     = this.parent.getFontRenderer();
+        TrackContainer tc = this.collections.get(slotIdx);
+        String title = StringUtils.stripControlCodes(tc.getName() == null ? "" : tc.getName());
+        String artist = StringUtils.stripControlCodes(tc.getAuthor() == null ? "" : tc.getAuthor());
+        String album = StringUtils.stripControlCodes(tc.getAlbum() == null ? "" : tc.getAlbum());
+        String meta = artist.length() == 0 ? album : (album.length() == 0 ? artist : artist + " - " + album);
+        FontRenderer font = this.parent.getFontRenderer();
 
-        font.drawString(font.trimStringToWidth(name,listWidth - 10), this.left + 3 , slotTop +  2, 0xFFFFFF);
+        font.drawString(font.trimStringToWidth(title, listWidth - 12), this.left + 4 , slotTop + 2, 0xFFFFFF);
+        if (meta.length() > 0 && slotHeight >= 22) {
+            font.drawString(font.trimStringToWidth(meta, listWidth - 12), this.left + 4 , slotTop + 12, 0xAAAAAA);
+        }
     }
 }

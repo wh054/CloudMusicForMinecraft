@@ -14,8 +14,8 @@ public class GuiSlotSubList extends GuiScrollingList {
     private ArrayList<SubListContainer> collections;
     private int slotHeight;
 
-    public GuiSlotSubList(MusicPannel parent, ArrayList<SubListContainer> collections, int slotHeight){
-        super(parent.getMinecraftInstance(), parent.width/3-10, parent.height, parent.height/2+4, parent.height-50, 10, slotHeight, parent.width, parent.height);
+    public GuiSlotSubList(MusicPannel parent, ArrayList<SubListContainer> collections, int left, int top, int width, int height, int slotHeight){
+        super(parent.getMinecraftInstance(), width, parent.height, top, top + height, left, slotHeight, parent.width, parent.height);
         this.parent=parent;
         this.collections=collections;
         this.slotHeight=slotHeight;
@@ -31,7 +31,7 @@ public class GuiSlotSubList extends GuiScrollingList {
         this.parent.selectSubListIndex(index);
         if(doubleClick){
             SubListContainer slc= collections.get(index);
-            this.parent.LoadTrackList(this.parent.getAlbumTracks(slc.getId()));
+            this.parent.openAlbum(slc);
         }
     }
 
@@ -57,6 +57,6 @@ public class GuiSlotSubList extends GuiScrollingList {
         String       name     = StringUtils.stripControlCodes(slc.getName());
         FontRenderer font     = this.parent.getFontRenderer();
 
-        font.drawString(font.trimStringToWidth(name,listWidth - 10), this.left + 3 , slotTop +  2, 0xFFFFFF);
+        font.drawString(font.trimStringToWidth(name, listWidth - 10), this.left + 4 , slotTop +  4, 0xFFFFFF);
     }
 }
