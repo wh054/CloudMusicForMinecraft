@@ -32,16 +32,36 @@
             "type": "shell",
             "command": "./gradlew runClient -Pdebug",
             "group": "none",
-            "problemMatcher": [],
-            "isBackground": true
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^Listening for transport dt_socket at address: (\\d+)$",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^> Task :runClient$",
+                    "endsPattern": "^Listening for transport dt_socket at address: \\d+$"
+                }
+            }
         },
         {
             "label": "Run Server (Debug)",
             "type": "shell",
             "command": "./gradlew runServer -Pdebug",
             "group": "none",
-            "problemMatcher": [],
-            "isBackground": true
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^Listening for transport dt_socket at address: (\\d+)$",
+                    "line": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^> Task :runServer$",
+                    "endsPattern": "^Listening for transport dt_socket at address: \\d+$"
+                }
+            }
         }
     ]
 }

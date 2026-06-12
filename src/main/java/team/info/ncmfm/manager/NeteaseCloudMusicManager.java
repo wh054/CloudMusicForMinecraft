@@ -351,9 +351,40 @@ public class NeteaseCloudMusicManager implements IMusicManager {
 
     @Override
     public String GetMusicById(long id) {
+        String level = getSongLevel();
+        String url = getMusicUrlWithLevel(id, level);
+        if (!isBlank(url)) {
+            return url;
+        }
+
+        String[] fallbackLevels;
+        if ("jysky".equals(level)) {
+            fallbackLevels = new String[]{"hires", "lossless", "exhigh", "standard"};
+        } else if ("hires".equals(level)) {
+            fallbackLevels = new String[]{"lossless", "exhigh", "standard"};
+        } else if ("lossless".equals(level)) {
+            fallbackLevels = new String[]{"exhigh", "standard"};
+        } else if ("exhigh".equals(level)) {
+            fallbackLevels = new String[]{"standard"};
+        } else {
+            fallbackLevels = new String[]{};
+        }
+
+        for (String fallback : fallbackLevels) {
+            logger.info("Url for level " + level + " was null, falling back to " + fallback);
+            url = getMusicUrlWithLevel(id, fallback);
+            if (!isBlank(url)) {
+                return url;
+            }
+        }
+
+        return "";
+    }
+
+    private String getMusicUrlWithLevel(long id, String level) {
         ApiResult<MusicPacket> result = get(MusicPacket.class, "/song/url/v1", Arrays.<NameValuePair>asList(
                 new BasicNameValuePair("id", Long.toString(id)),
-                new BasicNameValuePair("level", getSongLevel()),
+                new BasicNameValuePair("level", level),
                 new BasicNameValuePair("timestamp", Long.toString(System.currentTimeMillis()))
         ));
         MusicPacket packet = result.body;
@@ -636,14 +667,40 @@ public class NeteaseCloudMusicManager implements IMusicManager {
     }
 
     private static String getSongLevel() {
-        try {
-            if (Long.parseLong(safeString(NcmConfig.bitRate).trim()) >= 320000L) {
-                return "exhigh";
-            }
-        } catch (NumberFormatException ignored) {
-            return "standard";
+        String quality = safeString(NcmConfig.audioQuality).trim().toLowerCase();
+        if (quality.isEmpty()) {
+            quality = "highest";
         }
-        return "standard";
+        if ("highest".equals(quality)) {
+            return "hires";
+        }
+        switch (quality) {
+            case "standard":
+            case "higher":
+            case "exhigh":
+            case "lossless":
+            case "hires":
+            case "jyeffect":
+            case "sky":
+            case "jysky":
+                return quality;
+            default:
+                try {
+                    long br = Long.parseLong(quality);
+                    if (br >= 999000L) return "hires";
+                    if (br >= 320000L) return "exhigh";
+                    if (br >= 192000L) return "higher";
+                    return "standard";
+                } catch (NumberFormatException ignored) {
+                }
+                try {
+                    if (Long.parseLong(safeString(NcmConfig.bitRate).trim()) >= 320000L) {
+                        return "exhigh";
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+                return "standard";
+        }
     }
 
     private static String normalizeConfiguredValue(String value) {

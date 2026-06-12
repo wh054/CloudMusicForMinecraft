@@ -12,6 +12,8 @@ public class NcmConfig {
     public static String cookie="";
     @Config.Comment("码率")
     public static String bitRate="128000";
+    @Config.Comment("播放音质 (standard: 标准, higher: 较高, exhigh: 极高, lossless: 无损, hires: Hi-Res, highest: 账号最高)")
+    public static String audioQuality="highest";
     @Config.Comment("是否在客户端启动时自动启动内嵌 API 服务（需要在 ncm-api 目录下放置 API 文件）")
     public static boolean autoStartApiServer = true;
     @Config.Comment("内嵌 API 服务端口")

@@ -43,6 +43,7 @@ public class MusicPannel extends GuiScreen {
     private static final int BUTTON_TOGGLE_MODE = 20;
     private static final int BUTTON_VOLUME_TOGGLE = 21;
     private static final int BUTTON_TOGGLE_LYRICS = 22;
+    private static final int BUTTON_TOGGLE_QUALITY = 23;
 
     private static final int VIEW_PLAYLISTS = 0;
     private static final int VIEW_ALBUMS = 1;
@@ -164,13 +165,15 @@ public class MusicPannel extends GuiScreen {
         buttonList.add(new GuiModernButton(BUTTON_NEXT, controlsRight - 76, playerTop + 12, 32, 18, "下首"));
         buttonList.add(new GuiModernButton(BUTTON_STOP_MUSIC, controlsRight - 42, playerTop + 12, 42, 18, "停止"));
 
-        // Row 2 of Player Controls (46px each, aligned perfectly)
+        // Row 2 of Player Controls (aligned perfectly with Row 1)
         String modeText = getModeShortText(MusicPlaybackManager.getInstance().getPlayMode());
-        String volText = "V:" + Math.round(MusicPlaybackManager.getInstance().getVolume() * 100) + "%";
-        String lyricText = team.info.ncmfm.NcmConfig.showLyrics ? "词:开" : "词:关";
-        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_MODE, controlsRight - 146, playerTop + 34, 46, 18, modeText));
-        buttonList.add(new GuiModernButton(BUTTON_VOLUME_TOGGLE, controlsRight - 96, playerTop + 34, 46, 18, volText));
-        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_LYRICS, controlsRight - 46, playerTop + 34, 46, 18, lyricText));
+        String volText = "V:" + Math.round(MusicPlaybackManager.getInstance().getVolume() * 100);
+        String lyricText = team.info.ncmfm.NcmConfig.showLyrics ? "词开" : "词关";
+        String qualityText = getQualityShortText(team.info.ncmfm.NcmConfig.audioQuality);
+        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_MODE, controlsRight - 146, playerTop + 34, 32, 18, modeText));
+        buttonList.add(new GuiModernButton(BUTTON_VOLUME_TOGGLE, controlsRight - 112, playerTop + 34, 34, 18, volText));
+        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_LYRICS, controlsRight - 76, playerTop + 34, 32, 18, lyricText));
+        buttonList.add(new GuiModernButton(BUTTON_TOGGLE_QUALITY, controlsRight - 42, playerTop + 34, 42, 18, qualityText));
 
         searchField = new GuiTextField(0, fontRenderer, contentLeft, contentTop, Math.max(80, contentWidth - 64), 18);
         searchField.setMaxStringLength(64);
@@ -411,14 +414,18 @@ public class MusicPannel extends GuiScreen {
                 else if (currentVol < 0.9f) nextVol = 1.00f;
                 else nextVol = 0.00f;
                 manager.changeVolume(nextVol - currentVol);
-                button.displayString = "V:" + Math.round(nextVol * 100) + "%";
+                button.displayString = "V:" + Math.round(nextVol * 100);
                 break;
             case BUTTON_TOGGLE_LYRICS:
                 team.info.ncmfm.NcmConfig.showLyrics = !team.info.ncmfm.NcmConfig.showLyrics;
                 try {
                     net.minecraftforge.common.config.ConfigManager.sync(team.info.ncmfm.NcmMod.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE);
                 } catch (Exception e) {}
-                button.displayString = team.info.ncmfm.NcmConfig.showLyrics ? "词:开" : "词:关";
+                button.displayString = team.info.ncmfm.NcmConfig.showLyrics ? "词开" : "词关";
+                break;
+            case BUTTON_TOGGLE_QUALITY:
+                toggleQuality();
+                button.displayString = getQualityShortText(team.info.ncmfm.NcmConfig.audioQuality);
                 break;
             case BUTTON_CLOSE:
                 mc.displayGuiScreen(null);
@@ -657,6 +664,45 @@ public class MusicPannel extends GuiScreen {
             case SHUFFLE: return "随机";
             default: return "循环";
         }
+    }
+
+    private String getQualityShortText(String quality) {
+        if (quality == null) return "最高";
+        quality = quality.trim().toLowerCase();
+        if ("highest".equals(quality) || "jysky".equals(quality)) return "最高";
+        if ("lossless".equals(quality)) return "无损";
+        if ("hires".equals(quality)) return "超高";
+        if ("exhigh".equals(quality)) return "极高";
+        if ("higher".equals(quality)) return "较高";
+        if ("standard".equals(quality)) return "标准";
+        return "最高";
+    }
+
+    private void toggleQuality() {
+        String current = team.info.ncmfm.NcmConfig.audioQuality;
+        if (current == null) {
+            current = "highest";
+        }
+        current = current.trim().toLowerCase();
+        String next;
+        if ("highest".equals(current)) {
+            next = "standard";
+        } else if ("standard".equals(current)) {
+            next = "higher";
+        } else if ("higher".equals(current)) {
+            next = "exhigh";
+        } else if ("exhigh".equals(current)) {
+            next = "lossless";
+        } else {
+            next = "highest";
+        }
+        team.info.ncmfm.NcmConfig.audioQuality = next;
+        try {
+            net.minecraftforge.common.config.ConfigManager.sync(team.info.ncmfm.NcmMod.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE);
+        } catch (Exception e) {
+            // ignore
+        }
+        MusicPlaybackManager.getInstance().setStatusMessage("播放音质: " + getQualityShortText(next));
     }
 
     @Override

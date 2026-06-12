@@ -29,6 +29,7 @@ public class ClientProxy implements IProxy {
     {
         MinecraftForge.EVENT_BUS.register(new BlockRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new ItemRegistryHandler());
+        MinecraftForge.EVENT_BUS.register(new ClientModelRegistryHandler());
         MinecraftForge.EVENT_BUS.register(new RenderGuiHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerActionHandler());
         MinecraftForge.EVENT_BUS.register(new GameSoundHandler());
