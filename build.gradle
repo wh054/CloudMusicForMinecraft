@@ -198,6 +198,9 @@ tasks.matching { it.name in ['prepareRunClient', 'prepareRunServer'] }.all {
 
 tasks.matching { it.name in ['runClient', 'runServer'] }.all {
     dependsOn patchForgeSideEnum
+    if (project.hasProperty('debug')) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005'
+    }
 }
 
 build.finalizedBy patchForgeSideEnum

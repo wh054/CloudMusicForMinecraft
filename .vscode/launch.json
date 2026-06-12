@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Client (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "preLaunchTask": "Run Client (Debug)",
+            "projectName": "CloudMusicForMinecraft"
+        },
+        {
+            "type": "java",
+            "name": "Debug Server (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "preLaunchTask": "Run Server (Debug)",
+            "projectName": "CloudMusicForMinecraft"
+        },
+        {
+            "type": "java",
+            "name": "Attach to JVM (5005)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "projectName": "CloudMusicForMinecraft"
+        }
+    ]
+}

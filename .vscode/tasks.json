@@ -1,0 +1,47 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "./gradlew build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Client",
+            "type": "shell",
+            "command": "./gradlew runClient",
+            "group": "none",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "Run Server",
+            "type": "shell",
+            "command": "./gradlew runServer",
+            "group": "none",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "Run Client (Debug)",
+            "type": "shell",
+            "command": "./gradlew runClient -Pdebug",
+            "group": "none",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "Run Server (Debug)",
+            "type": "shell",
+            "command": "./gradlew runServer -Pdebug",
+            "group": "none",
+            "problemMatcher": [],
+            "isBackground": true
+        }
+    ]
+}
