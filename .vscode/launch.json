@@ -8,6 +8,9 @@
             "hostName": "localhost",
             "port": 5005,
             "preLaunchTask": "Run Client (Debug)",
+            "sourcePaths": [
+                "${workspaceFolder}/src/main/java"
+            ],
             "projectName": "CloudMusicForMinecraft"
         },
         {
@@ -17,6 +20,9 @@
             "hostName": "localhost",
             "port": 5005,
             "preLaunchTask": "Run Server (Debug)",
+            "sourcePaths": [
+                "${workspaceFolder}/src/main/java"
+            ],
             "projectName": "CloudMusicForMinecraft"
         },
         {
@@ -25,6 +31,9 @@
             "request": "attach",
             "hostName": "localhost",
             "port": 5005,
+            "sourcePaths": [
+                "${workspaceFolder}/src/main/java"
+            ],
             "projectName": "CloudMusicForMinecraft"
         }
     ]

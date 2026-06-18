@@ -4,7 +4,24 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "./gradlew build",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/scripts/gradlew-java8.sh",
+                "build",
+                "--console=plain"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\scripts\\gradlew-java8.ps1",
+                    "build",
+                    "--console=plain"
+                ]
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -14,7 +31,24 @@
         {
             "label": "Run Client",
             "type": "shell",
-            "command": "./gradlew runClient",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/scripts/gradlew-java8.sh",
+                "runClient",
+                "--console=plain"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\scripts\\gradlew-java8.ps1",
+                    "runClient",
+                    "--console=plain"
+                ]
+            },
             "group": "none",
             "problemMatcher": [],
             "isBackground": true
@@ -22,7 +56,24 @@
         {
             "label": "Run Server",
             "type": "shell",
-            "command": "./gradlew runServer",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/scripts/gradlew-java8.sh",
+                "runServer",
+                "--console=plain"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\scripts\\gradlew-java8.ps1",
+                    "runServer",
+                    "--console=plain"
+                ]
+            },
             "group": "none",
             "problemMatcher": [],
             "isBackground": true
@@ -30,7 +81,26 @@
         {
             "label": "Run Client (Debug)",
             "type": "shell",
-            "command": "./gradlew runClient -Pdebug",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/scripts/gradlew-java8.sh",
+                "runClient",
+                "-Pdebug",
+                "--console=plain"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\scripts\\gradlew-java8.ps1",
+                    "runClient",
+                    "-Pdebug",
+                    "--console=plain"
+                ]
+            },
             "group": "none",
             "isBackground": true,
             "problemMatcher": {
@@ -48,7 +118,26 @@
         {
             "label": "Run Server (Debug)",
             "type": "shell",
-            "command": "./gradlew runServer -Pdebug",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/scripts/gradlew-java8.sh",
+                "runServer",
+                "-Pdebug",
+                "--console=plain"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    "${workspaceFolder}\\scripts\\gradlew-java8.ps1",
+                    "runServer",
+                    "-Pdebug",
+                    "--console=plain"
+                ]
+            },
             "group": "none",
             "isBackground": true,
             "problemMatcher": {

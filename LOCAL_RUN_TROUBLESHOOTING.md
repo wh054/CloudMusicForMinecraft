@@ -15,26 +15,71 @@
 
 ## 推荐运行命令
 
-每次开新 PowerShell 后，先设置 JDK 8 和代理：
+推荐通过仓库内的 Java 8 包装脚本启动 Gradle。脚本会按顺序查找：
+
+1. 环境变量 `JAVA8_HOME`
+2. 本地未提交文件 `.local/java8.env`
+3. 环境变量 `JAVA_HOME`
+4. 常见 JDK 8 安装目录
+
+如果需要显式指定本机 JDK 8 路径，创建 `.local/java8.env`：
+
+```properties
+JAVA8_HOME=C:\Program Files\Java\jdk1.8.0_181
+```
+
+`.local/` 已加入 `.gitignore`，Linux 用户可以写自己的路径，例如：
+
+```properties
+JAVA8_HOME=/home/wsp/.jdks/temurin-8
+```
+
+如果需要代理，每次开新 PowerShell 后设置：
 
 ```powershell
 $proxy='-Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=7890 -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=7890 -Djava.net.preferIPv4Stack=true -Dsun.net.client.defaultConnectTimeout=60000 -Dsun.net.client.defaultReadTimeout=60000'
-$env:JAVA_HOME='C:\Program Files\Java\jdk1.8.0_181'
-$env:Path="$env:JAVA_HOME\bin;$env:Path"
 $env:JAVA_OPTS=$proxy
 $env:GRADLE_OPTS=$proxy
 ```
 
-构建：
+Windows 构建：
 
 ```powershell
-.\gradlew.bat build --console=plain
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\gradlew-java8.ps1 build --console=plain
 ```
 
-启动客户端：
+Windows 启动客户端：
 
 ```powershell
-.\gradlew.bat runClient --console=plain
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\gradlew-java8.ps1 runClient --console=plain
+```
+
+Linux/macOS 构建：
+
+```bash
+bash ./scripts/gradlew-java8.sh build --console=plain
+```
+
+Linux/macOS 启动客户端：
+
+```bash
+bash ./scripts/gradlew-java8.sh runClient --console=plain
+```
+
+VS Code 调试：
+
+1. 打开 Run and Debug
+2. 选择 `Debug Client (Attach)`
+3. 按 F5
+
+`.vscode/tasks.json` 会先运行 `Run Client (Debug)`，该任务通过包装脚本启动 `runClient -Pdebug`。`build.gradle` 会让 Minecraft JVM 在 `5005` 端口等待调试器，随后 VS Code 自动 attach。
+
+如果 VS Code 的 Gradle/Java 扩展需要导入项目，但它自己选错了 JDK，可以在用户级或工作区本地设置里配置本机绝对路径：
+
+```json
+{
+  "java.import.gradle.java.home": "C:\\Program Files\\Java\\jdk1.8.0_181"
+}
 ```
 
 构建产物：
